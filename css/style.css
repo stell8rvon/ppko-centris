@@ -300,6 +300,87 @@ h1,h2,h3,h4,h5,h6, .playfair-strong, .section-article-title, .footer-logo {
 }
 .mobile-nav-link i { width: 30px; text-align: center; }
 
+/* =========================
+   PENGATURAN FOOTER BOTTOM 
+   ========================= */
+.footer-bottom {
+  max-width: 1100px; 
+  margin: 0 auto; 
+  margin-top: 2rem;
+  padding-top: 2rem; 
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex; 
+  justify-content: space-between; /* Membuat tulisan di kiri, logo di kanan */
+  align-items: center; /* Membuat posisinya sejajar lurus mendatar */
+  font-size: 0.85rem; 
+  color: rgba(255,255,255,0.4);
+  flex-wrap: wrap; 
+}
+
+/* =========================================
+   KOTAK BACKGROUND LONJONG (ALAS LOGO)
+   ========================================= */
+.footer-logos-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Membuat logo saling merapat (sebelumnya 1.5rem) */
+    background-color: var(--white); /* Warna alas putih, persis dengan logo KO AWIS */
+    padding: 0.5rem 1.5rem; /* Memberikan ruang lonjong yang pas */
+    border-radius: 50px; /* Membuat bentuk kapsul/lonjong sempurna */
+}
+
+.footer-logo-place {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.footer-logo-place:hover {
+    transform: translateY(-3px);
+}
+
+.footer-logo-place img {
+    height: 30px; 
+    width: auto;
+    object-fit: contain;
+    mix-blend-mode: multiply; 
+}
+
+/* =========================================
+   PENGATURAN UKURAN MASING-MASING LOGO
+   ========================================= */
+
+/* Logo 1: Kemdiktisaintek (Tut Wuri) */
+.footer-logo-place:nth-child(1) img {
+    height: 35px; /* Agak dibesarkan sedikit */
+}
+
+/* Logo 2: Diktisaintek Berdampak (Bentuknya memanjang) */
+.footer-logo-place:nth-child(2) img {
+    height: 25px; /* Dikecilkan karena logonya panjang ke samping */
+}
+
+/* Logo 3: Belmawa */
+.footer-logo-place:nth-child(3) img {
+    height: 45px; 
+}
+
+/* Logo 4: PPK Ormawa */
+.footer-logo-place:nth-child(4) img {
+    height: 45px; 
+}
+
+/* Logo 5: UII */
+.footer-logo-place:nth-child(5) img {
+    height: 38px; 
+}
+
+/* Logo 6: Centris */
+.footer-logo-place:nth-child(6) img {
+    height: 25px; 
+}
+
 /* ---- Responsive: show hamburger on small screens ---- */
 @media (max-width: 900px) {
   .nav-links { display: none; }
@@ -637,15 +718,6 @@ footer {
   transition: var(--transition); cursor: pointer;
 }
 .footer-col ul a:hover { color: var(--brown-300); }
-.footer-bottom {
-  max-width: 1100px; margin: 0 auto;
-  padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 0.85rem; color: rgba(255,255,255,0.4);
-  flex-wrap: wrap; gap: 1rem;
-}
-.footer-partners { display: flex; gap: 1.5rem; align-items: center; }
-.footer-partners span { font-size: 0.8rem; }
 
 /* ===== PAGE: MODUL KO AWIS ===== */
 .page-header {
@@ -1201,6 +1273,14 @@ modul-content h1 {
   .vision-misi-grid { grid-template-columns: 1fr; }
   .contact-section { grid-template-columns: 1fr; gap: 2rem; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .footer-bottom {
+        flex-direction: column; /* Kalau di HP baru dibikin atas-bawah */
+        gap: 1.5rem;
+        text-align: center;
+    }
+    .footer-logos-container {
+        order: -1; /* Di HP, kotak logonya naik ke atas tulisan hak cipta */
+    }
 
   .isi-modul-layout { grid-template-columns: 1fr; }
   .sidebar-modul { display: none; position: fixed; top: 68px; left: 0; z-index: 90;
