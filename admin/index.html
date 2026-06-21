@@ -311,9 +311,9 @@
       const alertBox = document.getElementById('alertBox');
       const btn = document.getElementById('btnSubmitForm');
       btn.disabled = true; btn.textContent = 'Memproses...';
+      const id = document.getElementById('moduleIdInput').value;
       
       try {
-        const id = document.getElementById('moduleIdInput').value;
         const fileInput = document.getElementById('moduleImageInput');
         let imageUrl = document.getElementById('moduleImageOld').value;
 
@@ -407,9 +407,9 @@
       const btn = document.getElementById('btnSubmitArticle');
       const alertBox = document.getElementById('alertBoxArticle');
       btn.disabled = true; btn.textContent = 'Memproses...';
+      const id = document.getElementById('articleIdInput').value;
 
       try {
-        const id = document.getElementById('articleIdInput').value;
         const fileInput = document.getElementById('artImageInput');
         let imageUrl = document.getElementById('articleImageOld').value;
 
