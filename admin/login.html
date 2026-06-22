@@ -25,15 +25,24 @@
 
     <div id="errorMsg" class="error-msg"></div>
 
-    <form id="loginForm">
+    <form id="loginForm" autocomplete="off">
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input type="email" id="email" class="form-input" placeholder="Masukkan email admin" required>
+        <input type="email" id="email" class="form-input" 
+          placeholder="Masukkan email admin"
+          autocomplete="username"
+          value=""
+          required>
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
         <div style="position: relative;">
-          <input type="password" id="password" class="form-input" placeholder="••••••••" required style="padding-right: 40px;">
+          <input type="password" id="password" class="form-input" 
+            placeholder="Masukkan password"
+            autocomplete="new-password"
+            value=""
+            required
+            style="padding-right: 40px;">
           <i id="togglePassword" class="fa-solid fa-eye" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-light);"></i>
         </div>
       </div>

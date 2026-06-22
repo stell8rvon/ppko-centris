@@ -317,6 +317,7 @@ function triggerReveal() {
 document.addEventListener('DOMContentLoaded', () => {
   showPage('home');
   renderArticles('semua');
+  loadDynamicModuleCounts();
   setTimeout(triggerReveal, 100);
   // support opening module via query params from static pages
   const params = new URLSearchParams(location.search);
@@ -332,3 +333,36 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) { /* ignore if functions not available on this page */ }
   }
 });
+
+async function loadDynamicModuleCounts() {
+  try {
+    const { data: trackCounts, error: countError } = await supabase
+      .from('modules')
+      .select('track_id, tracks(slug)')
+      .eq('is_published', true);
+      
+    if (!countError && trackCounts) {
+      const counts = { hilir: 0, entrepreneur: 0, digital: 0, sirkular: 0 };
+      trackCounts.forEach(m => {
+        const slug = m.tracks?.slug;
+        if (slug && counts.hasOwnProperty(slug)) {
+          counts[slug]++;
+        }
+      });
+      
+      const hilirEl = document.querySelector('.card-hilir .module-lessons');
+      if (hilirEl) hilirEl.innerHTML = `<i class="fas fa-book"></i> ${counts.hilir} Modul Pembelajaran`;
+      
+      const entreEl = document.querySelector('.card-entre .module-lessons');
+      if (entreEl) entreEl.innerHTML = `<i class="fas fa-book"></i> ${counts.entrepreneur} Modul Pembelajaran`;
+      
+      const digitalEl = document.querySelector('.card-digital .module-lessons');
+      if (digitalEl) digitalEl.innerHTML = `<i class="fas fa-book"></i> ${counts.digital} Modul Pembelajaran`;
+      
+      const sirkularEl = document.querySelector('.card-sirkular .module-lessons');
+      if (sirkularEl) sirkularEl.innerHTML = `<i class="fas fa-book"></i> ${counts.sirkular} Modul Pembelajaran`;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}

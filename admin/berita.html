@@ -3,271 +3,680 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin Berita — KO AWIS</title>
+  <title>Kelola Artikel — Admin KO AWIS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/styleadmin.css">
   <link rel="icon" type="image/png" href="../assets/logo-koawis-brand.png">
-  
-  <!-- Library -->
   <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+  <script src="../js/supabase-client.js"></script>
   <style>
-    body { font-family: 'Poppins', sans-serif; background: #f4f6f8; margin: 0; color: #333; }
-    
-    /* Navbar Admin */
-    .admin-nav { background: #fff; padding: 0.8rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: #3D2314; text-decoration: none; }
-    .nav-brand img { height: 36px; }
-    .nav-menu { display: flex; gap: 20px; align-items: center; }
-    .nav-item { text-decoration: none; color: #666; font-weight: 600; font-size: 0.95rem; transition: 0.2s; cursor: pointer; }
-    .nav-item:hover, .nav-item.active { color: #3D2314; }
-    .nav-item.active { border-bottom: 2px solid #3D2314; }
-    .btn-logout-nav { background: #dc3545; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 0.9rem; cursor: pointer; }
-    .nav-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #3D2314; }
-
-    .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
-    .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    h1, h2 { margin-top: 0; color: #2c1a0e; }
-    .form-group { margin-bottom: 15px; }
-    .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-    .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
-    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-    .btn-primary { background: #3D2314; color: white; }
-    .btn-primary:hover { background: #5c3317; }
-    .btn-secondary { background: #e0e0e0; color: #333; }
-    .btn-danger { background: #dc3545; color: white; padding: 5px 10px; font-size: 0.85rem; }
-    .btn-edit { background: #ffc107; color: #333; padding: 5px 10px; font-size: 0.85rem; margin-right: 5px; }
-    .btn-logout { background: #dc3545; color: white; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #f9f9f9; font-weight: 600; }
-    
-    .ck-editor__editable { min-height: 200px; }
-    .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; }
-    .alert.success { background: #d4edda; color: #155724; }
-    .alert.error { background: #f8d7da; color: #721c24; }
-
-    .form-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .checkbox-group { display: flex; align-items: center; gap: 10px; }
-
-    /* Responsive */
+    /* Responsif: sembunyikan kolom Penulis & Tanggal di HP kecil */
+    @media (max-width: 520px) {
+      .col-author, .col-date { display: none; }
+    }
+    /* Search bar artikel */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,255,255,.55);
+      border: 1.5px solid var(--c-border);
+      border-radius: var(--r-sm);
+      padding: .45rem .85rem;
+      backdrop-filter: blur(8px);
+      flex: 1;
+      max-width: 320px;
+    }
+    .search-bar i { color: var(--c-text-lite); font-size: .88rem; }
+    .search-bar input {
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: .86rem;
+      color: var(--c-text);
+      outline: none;
+      width: 100%;
+    }
+    .search-bar input::placeholder { color: rgba(122,92,62,.4); }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--c-border);
+    }
     @media (max-width: 768px) {
-      .admin-nav { padding: 1rem; position: relative; }
-      .nav-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); gap: 15px; align-items: flex-start; }
-      .nav-menu.open { display: flex; }
-      .nav-toggle { display: block; }
-      .nav-item { width: 100%; padding: 5px 0; }
-      
-      .form-grid { grid-template-columns: 1fr; }
-      table { display: block; overflow-x: auto; white-space: nowrap; }
+      .filter-row { padding: .75rem 1.25rem; }
+      .search-bar { max-width: 100%; flex: 1; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Navbar -->
-  <nav class="admin-nav">
-    <a href="index.html" class="nav-brand">
-      <img src="../assets/logo-koawis-brand.png" alt="Logo">
-      <span>Admin Panel</span>
-    </a>
-    <button class="nav-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
-    <div class="nav-menu" id="navMenu">
-      <a href="index.html" class="nav-item">Dashboard</a>
-      <a href="modul.html" class="nav-item">Kelola Modul</a>
-      <a href="berita.html" class="nav-item active">Kelola Berita</a>
-      <button onclick="handleLogout()" class="nav-item btn-logout-nav">Logout</button>
-    </div>
-  </nav>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-  <div class="admin-container">
-    <div class="card">
-      <h2><i class="fas fa-newspaper"></i> Tambah / Edit Berita</h2>
-      <div id="alertBox" class="alert"></div>
-      
-      <form id="articleForm">
-        <input type="hidden" id="articleId">
-        
-        <div class="form-group">
-          <label class="form-label">Judul Berita</label>
-          <input class="form-input" id="titleInput" required placeholder="Contoh: Teknik Fermentasi Kakao Unggulan">
+  <div class="dashboard-layout">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="adminSidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/logo-koawis-brand.png" class="sidebar-brand-logo" alt="KO AWIS Logo">
+        <div class="sidebar-brand-text">
+          <strong>KO AWIS</strong>
+          <span>Admin Panel</span>
         </div>
+      </div>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Slug (URL)</label>
-            <input class="form-input" id="slugInput" required placeholder="teknik-fermentasi-kakao">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Kategori</label>
-            <select class="form-select" id="categorySelect" required>
-              <option value="pertanian">Pertanian</option>
-              <option value="program">Program Desa</option>
-              <option value="komunitas">Komunitas</option>
-              <option value="pasar">Pasar Kakao</option>
-            </select>
-          </div>
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-profile-info">
+          <span class="name">Admin KO AWIS</span>
+          <span class="role">● Online</span>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label">Kutipan / Ringkasan (Excerpt)</label>
-          <textarea class="form-textarea" id="excerptInput" rows="3" placeholder="Tulis ringkasan singkat artikel di sini..."></textarea>
+      <div class="sidebar-divider"></div>
+
+      <nav class="sidebar-nav">
+        <a href="index.html" class="sidebar-nav-item">
+          <i class="fas fa-chart-line"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="modul.html" class="sidebar-nav-item">
+          <i class="fas fa-graduation-cap"></i>
+          <span>Kelola Modul</span>
+        </a>
+        <a href="berita.html" class="sidebar-nav-item active">
+          <i class="fas fa-newspaper"></i>
+          <span>Kelola Artikel</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button onclick="handleLogout()" class="btn-logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Keluar</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="btn-menu-toggle" id="menuToggle" onclick="toggleSidebar()" style="display:none;">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2>
+            <i class="fas fa-newspaper" style="color:var(--c-accent); font-size:1.1rem;"></i>
+            Kelola Artikel
+          </h2>
         </div>
-
-        <div class="form-group">
-          <label class="form-label">Konten Lengkap</label>
-          <div id="editor"></div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Penulis</label>
-            <input class="form-input" id="authorInput" placeholder="Nama Penulis" value="Tim KO AWIS">
-          </div>
-          <div class="form-group">
-            <label class="form-label">URL Gambar Utama</label>
-            <input class="form-input" id="imageUrlInput" placeholder="https://images.unsplash.com/...">
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Waktu Baca (Menit)</label>
-            <input type="number" class="form-input" id="readTimeInput" value="5">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Status</label>
-            <div class="checkbox-group">
-              <input type="checkbox" id="isPublishedInput" checked style="width: 20px; height: 20px;">
-              <label for="isPublishedInput">Terbitkan (Published)</label>
-            </div>
+        <div class="topbar-right">
+          <div class="topbar-date" id="currentDate">
+            <i class="far fa-calendar-alt"></i>
           </div>
         </div>
+      </div>
 
-        <div style="display:flex; gap:10px; margin-top: 1rem;">
-          <button type="submit" class="btn btn-primary" id="btnSave"><i class="fas fa-save"></i> Simpan Berita</button>
-          <button type="button" class="btn btn-secondary" id="btnCancel" style="display:none;" onclick="resetForm()"><i class="fas fa-times"></i> Batal</button>
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card stat-mod delay-1">
+          <div class="stat-card-info">
+            <span class="count" id="stat-mod">—</span>
+            <span class="label">Total Modul</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-book-open"></i></div>
         </div>
-      </form>
-    </div>
+        <div class="stat-card stat-art delay-2">
+          <div class="stat-card-info">
+            <span class="count" id="stat-art">—</span>
+            <span class="label">Total Artikel</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-newspaper"></i></div>
+        </div>
+        <div class="stat-card stat-db delay-3">
+          <div class="stat-card-info">
+            <span class="count" style="font-size:1.35rem;">Aktif</span>
+            <span class="label">Koneksi Database</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-database"></i></div>
+        </div>
+      </div>
 
-    <div class="card">
-      <h2><i class="fas fa-list"></i> Daftar Berita</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Judul</th>
-            <th>Kategori</th>
-            <th>Penulis</th>
-            <th>Status</th>
-            <th style="width:150px;">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr><td colspan="5">Memuat data...</td></tr>
-        </tbody>
-      </table>
-    </div>
+      <!-- ═══ FORM ARTIKEL (Collapsible) ═══ -->
+      <div class="form-wrapper hidden" id="formWrapper">
+        <div class="form-inner">
+
+          <!-- STICKY HEADER -->
+          <div class="form-sticky-header">
+            <h3 id="formTitle">
+              <i class="fas fa-pen-nib"></i>
+              <span id="formTitleText">Tulis Artikel Baru</span>
+            </h3>
+            <button type="button" class="btn btn-danger btn-sm" onclick="closeForm()">
+              <i class="fas fa-times"></i> Tutup / Batal
+            </button>
+          </div>
+
+          <div class="form-body">
+            <div id="alertBox"></div>
+
+            <form id="articleForm" onsubmit="saveArticle(event)" novalidate>
+              <input type="hidden" id="articleId">
+              <input type="hidden" id="articleImageOld">
+
+              <!-- ① Judul & Penulis -->
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label"><i class="fas fa-heading"></i> Judul Artikel</label>
+                  <input class="form-input" id="artTitleInput"
+                    placeholder="Tuliskan judul yang menarik..." required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label"><i class="fas fa-user-edit"></i> Penulis</label>
+                  <input class="form-input" id="artAuthorInput"
+                    placeholder="Nama penulis" value="Tim KO AWIS" required>
+                </div>
+              </div>
+
+              <!-- ② Kategori -->
+              <div class="form-group">
+                <label class="form-label"><i class="fas fa-tag"></i> Kategori Artikel</label>
+                <div style="display:flex; gap:.65rem; flex-wrap:wrap; align-items:center;">
+                  <div style="flex:1; min-width:180px;">
+                    <select class="form-select" id="artCategorySelect"></select>
+                  </div>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="showAddCategory()">
+                    <i class="fas fa-plus"></i> Kategori Baru
+                  </button>
+                </div>
+                <div id="newCategoryRow" class="inline-add-row" style="display:none;">
+                  <input type="text" class="form-input" id="newCatInput" placeholder="Nama kategori baru...">
+                  <button type="button" class="btn btn-accent btn-sm" onclick="confirmAddCategory()">
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="cancelAddCategory()">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <span class="form-hint">Kategori membantu user menemukan artikel yang relevan.</span>
+              </div>
+
+              <!-- ③ Gambar Thumbnail -->
+              <div class="form-group">
+                <label class="form-label"><i class="fas fa-image"></i> Gambar Thumbnail</label>
+                <div class="file-dropzone">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span class="dz-t">Klik atau seret gambar ke sini</span>
+                  <p class="dz-h">PNG, JPG, JPEG — maks. 5MB. Tampil sebagai cover artikel.</p>
+                  <input type="file" id="artImageInput" accept="image/*">
+                </div>
+                <div class="img-preview" id="imagePreview">
+                  <img src="" alt="preview">
+                  <div class="img-preview-info">
+                    <span>Thumbnail dipilih</span>
+                    <p>Siap diunggah saat disimpan</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ④ Konten -->
+              <div class="form-group">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.45rem;">
+                  <label class="form-label" style="margin:0;"><i class="fas fa-file-alt"></i> Isi Artikel</label>
+                  <div style="background:rgba(224,139,70,.1);border:1px solid rgba(224,139,70,.2);border-radius:50px;padding:.3rem .85rem;font-size:.77rem;color:var(--c-brown-600);font-weight:600;display:flex;align-items:center;gap:5px;">
+                    <i class="fas fa-clock"></i>
+                    <span id="readTimeDisplay">~1 menit baca</span>
+                    <input type="hidden" id="artReadTimeInput" value="1">
+                  </div>
+                </div>
+                <textarea class="form-textarea" id="artContentInput" placeholder="Tulis isi artikel di sini..."></textarea>
+                <span class="form-hint">Estimasi waktu baca dihitung otomatis dari panjang tulisan.</span>
+              </div>
+
+              <!-- ⑤ Status -->
+              <div class="form-group">
+                <label class="form-label"><i class="fas fa-toggle-on"></i> Status Publikasi</label>
+                <select class="form-select" id="artStatusInput">
+                  <option value="true">✅ Terbit — Tampil di halaman publik</option>
+                  <option value="false">📝 Draft — Disimpan, tidak ditampilkan</option>
+                </select>
+              </div>
+
+              <div style="display:flex; gap:.85rem; margin-top:1.5rem; flex-wrap:wrap;">
+                <button type="submit" class="btn btn-primary" id="btnSubmitArticle">
+                  <i class="fas fa-paper-plane"></i>
+                  <span id="btnSubmitText">Terbitkan Artikel</span>
+                </button>
+                <button type="button" class="btn btn-ghost" onclick="resetForm()">
+                  <i class="fas fa-undo"></i> Reset Isian
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ DAFTAR ARTIKEL ═══ -->
+      <div class="card delay-1">
+        <div class="card-header">
+          <h2><i class="fas fa-newspaper"></i> Daftar Artikel</h2>
+          <button class="btn btn-accent" id="btnOpenForm" onclick="toggleForm()">
+            <i class="fas fa-plus"></i> Tulis Artikel
+          </button>
+        </div>
+
+        <!-- Filter & Search -->
+        <div class="filter-row">
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Cari judul artikel..." oninput="filterArticles()">
+          </div>
+          <select class="form-select" id="filterCategory" onchange="filterArticles()" style="max-width:160px; padding:.45rem .85rem;">
+            <option value="">Semua Kategori</option>
+          </select>
+          <select class="form-select" id="filterStatus" onchange="filterArticles()" style="max-width:140px; padding:.45rem .85rem;">
+            <option value="">Semua Status</option>
+            <option value="true">Terbit</option>
+            <option value="false">Draft</option>
+          </select>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">Gambar</th>
+                <th>Judul Artikel</th>
+                <th class="col-cat" style="width:120px;">Kategori</th>
+                <th class="col-author" style="width:120px;">Penulis</th>
+                <th class="col-date" style="width:105px;">Tanggal</th>
+                <th style="width:85px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="articleBody">
+              <tr>
+                <td colspan="6" style="text-align:center; padding:3rem; color:#aaa;">
+                  <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i>
+                  <p style="margin-top:.5rem;">Memuat data...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
   </div>
 
-  <script src="../js/supabase-client.js"></script>
-
   <script>
-    let editorInstance;
+    /* ─── KATEGORI DEFAULT ─── */
+    const DEFAULT_CATS = [
+      { value:'pertanian', label:'🌾 Pertanian' },
+      { value:'program',   label:'🏡 Program Desa' },
+      { value:'komunitas', label:'🤝 Komunitas' },
+      { value:'pasar',     label:'📈 Pasar Kakao' }
+    ];
 
-    ClassicEditor.create(document.querySelector('#editor')).then(editor => { editorInstance = editor; }).catch(error => console.error(error));
+    let extraCats = [];
+    let articleEditor;
+
+    /* ─── INIT ─── */
+    let allArticlesData = [];
 
     document.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
 
-      loadArticles();
-      document.getElementById('titleInput').addEventListener('input', function() {
-        document.getElementById('slugInput').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+      document.getElementById('currentDate').innerHTML =
+        `<i class="far fa-calendar-alt"></i> ${new Date().toLocaleDateString('id-ID', opts)}`;
+
+      // Menu toggle responsive
+      const showToggle = () => {
+        const t = document.getElementById('menuToggle');
+        if (t) t.style.display = window.innerWidth <= 1024 ? 'flex' : 'none';
+      };
+      showToggle();
+      window.addEventListener('resize', showToggle);
+
+      // Init CKEditor
+      ClassicEditor.create(document.querySelector('#artContentInput'), {
+        extraPlugins: [MyUploadPlugin]
+      }).then(ed => {
+        articleEditor = ed;
+        ed.model.document.on('change:data', () => {
+          const text = ed.getData().replace(/<[^>]*>/gm,'');
+          const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+          const mins = Math.max(1, Math.ceil(words / 200));
+          document.getElementById('artReadTimeInput').value = mins;
+          document.getElementById('readTimeDisplay').textContent = `~${mins} menit baca`;
+        });
+      }).catch(console.error);
+
+      // Preview gambar
+      document.getElementById('artImageInput').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const p = document.getElementById('imagePreview');
+          p.querySelector('img').src = ev.target.result;
+          p.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
       });
+
+      renderCats(null);
+      loadArticles();
+      loadStats();
     });
 
-    async function handleLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
+    /* ─── CATEGORY HELPERS ─── */
+    function renderCats(selected) {
+      const sel = document.getElementById('artCategorySelect');
+      const all = [...DEFAULT_CATS, ...extraCats];
+      sel.innerHTML = all.map(c =>
+        `<option value="${c.value}" ${c.value === selected ? 'selected' : ''}>${c.label}</option>`
+      ).join('');
+    }
 
+    function showAddCategory() {
+      document.getElementById('newCategoryRow').style.display = 'flex';
+      document.getElementById('newCatInput').focus();
+    }
+
+    function confirmAddCategory() {
+      const val = document.getElementById('newCatInput').value.trim();
+      if (!val) return;
+      const slug = val.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+      const all = [...DEFAULT_CATS, ...extraCats];
+      if (!all.find(c => c.value === slug)) {
+        extraCats.push({ value: slug, label: `📌 ${val}` });
+      }
+      renderCats(slug);
+      cancelAddCategory();
+    }
+
+    function cancelAddCategory() {
+      document.getElementById('newCategoryRow').style.display = 'none';
+      document.getElementById('newCatInput').value = '';
+    }
+
+    /* ─── STATS ─── */
+    async function loadStats() {
+      const [{ data: m }, { data: a }] = await Promise.all([
+        supabase.from('modules').select('id'),
+        supabase.from('articles').select('id')
+      ]);
+      if (m) document.getElementById('stat-mod').textContent = m.length;
+      if (a) document.getElementById('stat-art').textContent = a.length;
+    }
+
+    /* ─── LOAD ARTICLES ─── */
     async function loadArticles() {
-      const tbody = document.getElementById('tableBody');
-      const { data, error } = await supabase.from('articles').select('*').order('created_at', { ascending: false });
+      const tbody = document.getElementById('articleBody');
+      const { data, error } = await supabase.from('articles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (error) { tbody.innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${error.message}</td></tr>`; return; }
-      if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada berita.</td></tr>`; return; }
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color:red;text-align:center;padding:2rem;">Error: ${error.message}</td></tr>`;
+        return;
+      }
+
+      document.getElementById('stat-art').textContent = data.length;
+
+      // Simpan data untuk filter
+      allArticlesData = data;
+
+      // Kumpulkan kategori unik dari DB
+      const dbCats = [...new Set(data.map(a => a.category).filter(Boolean))];
+      dbCats.forEach(cat => {
+        const all = [...DEFAULT_CATS, ...extraCats];
+        if (!all.find(c => c.value === cat)) {
+          extraCats.push({ value: cat, label: `📌 ${cat}` });
+        }
+      });
+      renderCats(null);
+
+      // Isi filter dropdown kategori
+      const fc = document.getElementById('filterCategory');
+      const allCats = [...DEFAULT_CATS, ...extraCats];
+      fc.innerHTML = '<option value="">Semua Kategori</option>' +
+        allCats.map(c => `<option value="${c.value}">${c.label}</option>`).join('');
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-newspaper"></i><p>Belum ada artikel. Klik "Tulis Artikel" untuk mulai.</p></div></td></tr>`;
+        return;
+      }
 
       tbody.innerHTML = data.map(a => `
-        <tr>
-          <td><strong>${a.title}</strong><br><small style="color:#666;">/${a.slug}</small></td>
-          <td>${a.category}</td>
-          <td>${a.author || '-'}</td>
-          <td>${a.is_published ? '<span style="color:green;">Terbit</span>' : '<span style="color:orange;">Draft</span>'}</td>
+        <tr style="animation:slideUp .3s ease both;"
+          data-title="${a.title.toLowerCase()}"
+          data-cat="${a.category||''}"
+          data-pub="${a.is_published}">
+          <td><img src="${a.image_url || '../assets/logo-koawis-brand.png'}"
+            style="width:56px;height:42px;object-fit:cover;border-radius:7px;border:1px solid var(--c-border);"
+            onerror="this.src='../assets/logo-koawis-brand.png'"></td>
           <td>
-            <button class="btn btn-edit" onclick="editArticle(${a.id})"><i class="fas fa-edit"></i> Edit</button>
-            <button class="btn btn-danger" onclick="deleteArticle(${a.id})"><i class="fas fa-trash"></i> Hapus</button>
+            <div style="font-weight:700;color:var(--c-brown-900);font-size:.88rem;">${a.title}</div>
+            <div style="font-size:.74rem;color:var(--c-text-lite);margin-top:2px;">
+              <i class="far fa-clock"></i> ${a.read_time||1} mnt
+            </div>
+          </td>
+          <td class="col-cat"><span class="badge badge-cat">${a.category||'—'}</span></td>
+          <td class="col-author" style="font-size:.83rem;color:var(--c-text-mid);">${a.author||'—'}</td>
+          <td class="col-date" style="font-size:.8rem;color:var(--c-text-lite);">
+            <i class="far fa-calendar-alt"></i> ${new Date(a.created_at).toLocaleDateString('id-ID')}
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-action btn-edit" title="Edit" onclick="editArticle('${a.id}')"><i class="fas fa-edit"></i></button>
+              <button class="btn-action btn-delete" title="Hapus" onclick="deleteArticle('${a.id}')"><i class="fas fa-trash-alt"></i></button>
+            </div>
           </td>
         </tr>`).join('');
-      }
+    }
 
-    async function editArticle(id) {
-      const { data } = await supabase.from('articles').select('*').eq('id', id).single();
-      if (data) {
-        document.getElementById('articleId').value = data.id;
-        document.getElementById('titleInput').value = data.title;
-        document.getElementById('slugInput').value = data.slug;
-        document.getElementById('categorySelect').value = data.category;
-        document.getElementById('excerptInput').value = data.excerpt || '';
-        editorInstance.setData(data.content || '');
-        document.getElementById('authorInput').value = data.author || '';
-        document.getElementById('imageUrlInput').value = data.image_url || '';
-        document.getElementById('readTimeInput').value = data.read_time || 5;
-        document.getElementById('isPublishedInput').checked = data.is_published;
-        document.getElementById('btnSave').innerHTML = '<i class="fas fa-sync-alt"></i> Update Berita';
-        document.getElementById('btnCancel').style.display = 'inline-block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    /* ─── FILTER ARTICLES ─── */
+    function filterArticles() {
+      const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      const cat = document.getElementById('filterCategory')?.value || '';
+      const status = document.getElementById('filterStatus')?.value || '';
+
+      const rows = document.querySelectorAll('#articleBody tr[data-title]');
+      let visible = 0;
+
+      rows.forEach(row => {
+        const title = row.dataset.title || '';
+        const rowCat = row.dataset.cat || '';
+        const rowPub = row.dataset.pub || '';
+
+        const matchQ = !q || title.includes(q);
+        const matchCat = !cat || rowCat === cat;
+        const matchStatus = !status || rowPub === status;
+
+        row.style.display = (matchQ && matchCat && matchStatus) ? '' : 'none';
+        if (matchQ && matchCat && matchStatus) visible++;
+      });
+
+      // Tampilkan pesan jika tidak ada hasil
+      const tbody = document.getElementById('articleBody');
+      const noResultRow = tbody.querySelector('.no-result-row');
+      if (visible === 0 && rows.length > 0) {
+        if (!noResultRow) {
+          const tr = document.createElement('tr');
+          tr.className = 'no-result-row';
+          tr.innerHTML = `<td colspan="6"><div class="empty-state" style="padding:1.5rem;"><i class="fas fa-search"></i><p>Tidak ada artikel yang cocok dengan filter.</p></div></td>`;
+          tbody.appendChild(tr);
+        }
+      } else if (noResultRow) {
+        noResultRow.remove();
       }
     }
 
-    async function deleteArticle(id) {
-      if (!confirm('Yakin hapus berita ini?')) return;
-      const { error } = await supabase.from('articles').delete().eq('id', id);
-      if (!error) { showAlert('success', '<i class="fas fa-check-circle"></i> Berita berhasil dihapus!'); loadArticles(); }
-      else showAlert('error', 'Gagal hapus: ' + error.message);
+    /* ─── TOGGLE / OPEN / CLOSE ─── */
+    function toggleForm() {
+      const w = document.getElementById('formWrapper');
+      if (w.classList.contains('hidden')) openForm();
+      else closeForm();
     }
 
-    document.getElementById('articleForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('articleId').value;
-      const payload = {
-        title: document.getElementById('titleInput').value, slug: document.getElementById('slugInput').value,
-        category: document.getElementById('categorySelect').value, excerpt: document.getElementById('excerptInput').value,
-        content: editorInstance.getData(), author: document.getElementById('authorInput').value,
-        image_url: document.getElementById('imageUrlInput').value, read_time: document.getElementById('readTimeInput').value,
-        is_published: document.getElementById('isPublishedInput').checked
-      };
-      const { error } = id ? await supabase.from('articles').update(payload).eq('id', id) : await supabase.from('articles').insert([payload]);
-      if (!error) { showAlert('success', '<i class="fas fa-check-circle"></i> Data berita berhasil disimpan!'); resetForm(); loadArticles(); } 
-      else { showAlert('error', '<i class="fas fa-exclamation-circle"></i> Error: ' + error.message); }
-    });
+    function openForm() {
+      const w = document.getElementById('formWrapper');
+      w.classList.remove('hidden');
+      const btn = document.getElementById('btnOpenForm');
+      btn.innerHTML = '<i class="fas fa-minus"></i> Tutup Form';
+      btn.className = 'btn btn-ghost';
+      w.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    function closeForm() {
+      document.getElementById('formWrapper').classList.add('hidden');
+      const btn = document.getElementById('btnOpenForm');
+      btn.innerHTML = '<i class="fas fa-plus"></i> Tulis Artikel';
+      btn.className = 'btn btn-accent';
+      resetForm();
+    }
 
     function resetForm() {
       document.getElementById('articleForm').reset();
       document.getElementById('articleId').value = '';
-      editorInstance.setData('');
-      document.getElementById('isPublishedInput').checked = true;
-      document.getElementById('btnSave').innerHTML = '<i class="fas fa-save"></i> Simpan Berita';
-      document.getElementById('btnCancel').style.display = 'none';
+      document.getElementById('articleImageOld').value = '';
+      document.getElementById('imagePreview').style.display = 'none';
+      if (articleEditor) articleEditor.setData('');
+      renderCats(null);
+      cancelAddCategory();
+      document.getElementById('readTimeDisplay').textContent = '~1 menit baca';
+      document.getElementById('artReadTimeInput').value = '1';
+      document.getElementById('formTitleText').textContent = 'Tulis Artikel Baru';
+      document.querySelector('#formTitle i').className = 'fas fa-pen-nib';
+      document.getElementById('btnSubmitText').textContent = 'Terbitkan Artikel';
     }
 
-    function showAlert(type, msg) {
-      const box = document.getElementById('alertBox');
-      box.className = `alert ${type}`;
-      box.innerHTML = msg;
-      box.style.display = 'block';
-      setTimeout(() => { box.style.display = 'none'; }, 3000);
+    /* ─── EDIT ─── */
+    async function editArticle(id) {
+      const { data, error } = await supabase.from('articles').select('*').eq('id', id).single();
+      if (!data) { alert('Gagal: ' + (error?.message || 'unknown')); return; }
+
+      openForm();
+      document.getElementById('articleId').value = data.id;
+      document.getElementById('artTitleInput').value = data.title;
+      document.getElementById('artAuthorInput').value = data.author || 'Tim KO AWIS';
+      document.getElementById('artReadTimeInput').value = data.read_time || 1;
+      document.getElementById('readTimeDisplay').textContent = `~${data.read_time||1} menit baca`;
+      document.getElementById('articleImageOld').value = data.image_url || '';
+      document.getElementById('artStatusInput').value = data.is_published ? 'true' : 'false';
+      renderCats(data.category);
+      if (articleEditor) articleEditor.setData(data.content || '');
+
+      if (data.image_url) {
+        const p = document.getElementById('imagePreview');
+        p.querySelector('img').src = data.image_url;
+        p.style.display = 'flex';
+      }
+
+      document.getElementById('formTitleText').textContent = 'Edit Artikel';
+      document.querySelector('#formTitle i').className = 'fas fa-edit';
+      document.getElementById('btnSubmitText').textContent = 'Simpan Perubahan';
+    }
+
+    /* ─── SAVE ─── */
+    async function saveArticle(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('alertBox');
+      const btn = document.getElementById('btnSubmitArticle');
+      const id = document.getElementById('articleId').value;
+
+      btn.disabled = true;
+      document.getElementById('btnSubmitText').textContent = 'Menyimpan...';
+
+      try {
+        const fileInput = document.getElementById('artImageInput');
+        let imageUrl = document.getElementById('articleImageOld').value;
+
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const fn = `thumb_${Date.now()}_${file.name.replace(/\s+/g,'-')}`;
+          const { error: upErr } = await supabase.storage.from('article-images').upload(fn, file);
+          if (upErr) throw upErr;
+          imageUrl = supabase.storage.from('article-images').getPublicUrl(fn).data.publicUrl;
+        }
+
+        const title   = document.getElementById('artTitleInput').value.trim();
+        const content = articleEditor ? articleEditor.getData() : '';
+        const excerpt = content.replace(/<[^>]*>/gm,'').substring(0,160).trim() + '...';
+
+        const payload = {
+          title,
+          category:    document.getElementById('artCategorySelect').value,
+          author:      document.getElementById('artAuthorInput').value.trim(),
+          read_time:   parseInt(document.getElementById('artReadTimeInput').value) || 1,
+          content,
+          excerpt,
+          image_url:   imageUrl,
+          is_published: document.getElementById('artStatusInput').value === 'true'
+        };
+
+        let result;
+        if (id) {
+          result = await supabase.from('articles').update(payload).eq('id', id);
+        } else {
+          payload.slug = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') + '-' + Date.now();
+          result = await supabase.from('articles').insert([payload]);
+        }
+
+        if (result.error) throw result.error;
+
+        alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> Artikel berhasil ${id ? 'diperbarui' : 'diterbitkan'}!</div>`;
+        setTimeout(() => { closeForm(); loadArticles(); loadStats(); }, 700);
+        setTimeout(() => alertBox.innerHTML = '', 5000);
+
+      } catch (err) {
+        console.error(err);
+        alertBox.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i> Gagal: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        document.getElementById('btnSubmitText').textContent = id ? 'Simpan Perubahan' : 'Terbitkan Artikel';
+      }
+    }
+
+    /* ─── DELETE ─── */
+    async function deleteArticle(id) {
+      if (!confirm('Hapus artikel ini?\n\nTindakan ini tidak bisa dibatalkan.')) return;
+      const { error } = await supabase.from('articles').delete().eq('id', id);
+      const ab = document.getElementById('alertBox');
+      if (error) {
+        ab.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i> Gagal: ${error.message}</div>`;
+      } else {
+        loadArticles(); loadStats();
+      }
+    }
+
+    /* ─── UTILS ─── */
+    async function handleLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
+
+    function toggleSidebar() {
+      document.getElementById('adminSidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    function MyUploadPlugin(editor) {
+      editor.plugins.get('FileRepository').createUploadAdapter = loader => ({
+        upload: () => loader.file.then(file => new Promise(async (resolve, reject) => {
+          try {
+            const fn = `content_${Date.now()}_${file.name.replace(/\s+/g,'-')}`;
+            const { error } = await supabase.storage.from('article-images').upload(fn, file);
+            if (error) throw error;
+            resolve({ default: supabase.storage.from('article-images').getPublicUrl(fn).data.publicUrl });
+          } catch (err) { reject(err.message); }
+        }))
+      });
     }
   </script>
 </body>
