@@ -10,48 +10,7 @@
   <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-client.js"></script>
-  <style>
-    /* Responsif: sembunyikan kolom Penulis & Tanggal di HP kecil */
-    @media (max-width: 520px) {
-      .col-author, .col-date { display: none; }
-    }
-    /* Search bar artikel */
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      background: rgba(255,255,255,.55);
-      border: 1.5px solid var(--c-border);
-      border-radius: var(--r-sm);
-      padding: .45rem .85rem;
-      backdrop-filter: blur(8px);
-      flex: 1;
-      max-width: 320px;
-    }
-    .search-bar i { color: var(--c-text-lite); font-size: .88rem; }
-    .search-bar input {
-      border: none;
-      background: transparent;
-      font-family: inherit;
-      font-size: .86rem;
-      color: var(--c-text);
-      outline: none;
-      width: 100%;
-    }
-    .search-bar input::placeholder { color: rgba(122,92,62,.4); }
-    .filter-row {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-      flex-wrap: wrap;
-      padding: 1rem 2rem;
-      border-bottom: 1px solid var(--c-border);
-    }
-    @media (max-width: 768px) {
-      .filter-row { padding: .75rem 1.25rem; }
-      .search-bar { max-width: 100%; flex: 1; }
-    }
-  </style>
+
 </head>
 <body>
 
@@ -158,7 +117,7 @@
               <span id="formTitleText">Tulis Artikel Baru</span>
             </h3>
             <button type="button" class="btn btn-danger btn-sm" onclick="closeForm()">
-              <i class="fas fa-times"></i> Tutup / Batal
+              <i class="fas fa-times"></i> <span class="btn-text">Tutup / Batal</span>
             </button>
           </div>
 
@@ -247,7 +206,7 @@
                 </select>
               </div>
 
-              <div style="display:flex; gap:.85rem; margin-top:1.5rem; flex-wrap:wrap;">
+              <div class="form-actions">
                 <button type="submit" class="btn btn-primary" id="btnSubmitArticle">
                   <i class="fas fa-paper-plane"></i>
                   <span id="btnSubmitText">Terbitkan Artikel</span>
@@ -276,10 +235,10 @@
             <i class="fas fa-search"></i>
             <input type="text" id="searchInput" placeholder="Cari judul artikel..." oninput="filterArticles()">
           </div>
-          <select class="form-select" id="filterCategory" onchange="filterArticles()" style="max-width:160px; padding:.45rem .85rem;">
+          <select class="form-select filter-select" id="filterCategory" onchange="filterArticles()">
             <option value="">Semua Kategori</option>
           </select>
-          <select class="form-select" id="filterStatus" onchange="filterArticles()" style="max-width:140px; padding:.45rem .85rem;">
+          <select class="form-select filter-select" id="filterStatus" onchange="filterArticles()">
             <option value="">Semua Status</option>
             <option value="true">Terbit</option>
             <option value="false">Draft</option>
@@ -290,17 +249,18 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th style="width:70px;">Gambar</th>
-                <th>Judul Artikel</th>
+                <th class="col-cover" style="width:70px;">Gambar</th>
+                <th class="col-title">Judul Artikel</th>
                 <th class="col-cat" style="width:120px;">Kategori</th>
                 <th class="col-author" style="width:120px;">Penulis</th>
                 <th class="col-date" style="width:105px;">Tanggal</th>
-                <th style="width:85px;">Aksi</th>
+                <th class="col-status" style="width:100px;">Status</th>
+                <th class="col-action" style="width:85px;">Aksi</th>
               </tr>
             </thead>
             <tbody id="articleBody">
               <tr>
-                <td colspan="6" style="text-align:center; padding:3rem; color:#aaa;">
+                <td colspan="7" style="text-align:center; padding:3rem; color:#aaa;">
                   <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i>
                   <p style="margin-top:.5rem;">Memuat data...</p>
                 </td>
@@ -425,7 +385,7 @@
         .order('created_at', { ascending: false });
 
       if (error) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color:red;text-align:center;padding:2rem;">Error: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="color:red;text-align:center;padding:2rem;">Error: ${error.message}</td></tr>`;
         return;
       }
 
@@ -451,7 +411,7 @@
         allCats.map(c => `<option value="${c.value}">${c.label}</option>`).join('');
 
       if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-newspaper"></i><p>Belum ada artikel. Klik "Tulis Artikel" untuk mulai.</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-newspaper"></i><p>Belum ada artikel. Klik "Tulis Artikel" untuk mulai.</p></div></td></tr>`;
         return;
       }
 
@@ -460,10 +420,10 @@
           data-title="${a.title.toLowerCase()}"
           data-cat="${a.category||''}"
           data-pub="${a.is_published}">
-          <td><img src="${a.image_url || '../assets/logo-koawis-brand.png'}"
+          <td class="col-cover"><img src="${a.image_url || '../assets/logo-koawis-brand.png'}"
             style="width:56px;height:42px;object-fit:cover;border-radius:7px;border:1px solid var(--c-border);"
             onerror="this.src='../assets/logo-koawis-brand.png'"></td>
-          <td>
+          <td class="col-title">
             <div style="font-weight:700;color:var(--c-brown-900);font-size:.88rem;">${a.title}</div>
             <div style="font-size:.74rem;color:var(--c-text-lite);margin-top:2px;">
               <i class="far fa-clock"></i> ${a.read_time||1} mnt
@@ -474,7 +434,8 @@
           <td class="col-date" style="font-size:.8rem;color:var(--c-text-lite);">
             <i class="far fa-calendar-alt"></i> ${new Date(a.created_at).toLocaleDateString('id-ID')}
           </td>
-          <td>
+          <td class="col-status"><span class="badge ${a.is_published?'badge-pub':'badge-draft'}">${a.is_published?'Terbit':'Draft'}</span></td>
+          <td class="col-action">
             <div style="display:flex;gap:6px;">
               <button class="btn-action btn-edit" title="Edit" onclick="editArticle('${a.id}')"><i class="fas fa-edit"></i></button>
               <button class="btn-action btn-delete" title="Hapus" onclick="deleteArticle('${a.id}')"><i class="fas fa-trash-alt"></i></button>
@@ -512,7 +473,7 @@
         if (!noResultRow) {
           const tr = document.createElement('tr');
           tr.className = 'no-result-row';
-          tr.innerHTML = `<td colspan="6"><div class="empty-state" style="padding:1.5rem;"><i class="fas fa-search"></i><p>Tidak ada artikel yang cocok dengan filter.</p></div></td>`;
+          tr.innerHTML = `<td colspan="7"><div class="empty-state" style="padding:1.5rem;"><i class="fas fa-search"></i><p>Tidak ada artikel yang cocok dengan filter.</p></div></td>`;
           tbody.appendChild(tr);
         }
       } else if (noResultRow) {

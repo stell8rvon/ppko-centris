@@ -298,7 +298,7 @@
                 <th style="width:55px;">Cover</th>
                 <th>Judul Artikel</th>
                 <th style="width:120px;">Kategori</th>
-                <th style="width:120px;">Tanggal</th>
+                <th class="col-date" style="width:120px;">Tanggal</th>
                 <th style="width:90px;">Status</th>
               </tr>
             </thead>
@@ -389,7 +389,7 @@
             <td><img src="${m.image_url||'../assets/logo-koawis-brand.png'}"
               style="width:46px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--c-border);"
               onerror="this.src='../assets/logo-koawis-brand.png'"></td>
-            <td style="font-weight:600;font-size:.87rem;color:var(--c-brown-900);">${m.title}</td>
+            <td class="col-title" style="font-weight:600;font-size:.87rem;color:var(--c-brown-900);">${m.title}</td>
             <td><span class="badge ${PILAR_BADGE[badgeKey]}">${PILAR_ICON[badgeKey]||''} ${m.tracks?.title||'—'}</span></td>
             <td><span class="badge ${m.is_published?'badge-pub':'badge-draft'}">${m.is_published?'Terbit':'Draft'}</span></td>
           </tr>`;
@@ -417,9 +417,9 @@
           <td><img src="${a.image_url||'../assets/logo-koawis-brand.png'}"
             style="width:46px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--c-border);"
             onerror="this.src='../assets/logo-koawis-brand.png'"></td>
-          <td style="font-weight:600;font-size:.87rem;color:var(--c-brown-900);">${a.title}</td>
+          <td class="col-title" style="font-weight:600;font-size:.87rem;color:var(--c-brown-900);">${a.title}</td>
           <td><span class="badge badge-cat">${a.category||'—'}</span></td>
-          <td style="font-size:.8rem;color:var(--c-text-lite);">
+          <td class="col-date" style="font-size:.8rem;color:var(--c-text-lite);">
             ${new Date(a.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}
           </td>
           <td><span class="badge ${a.is_published?'badge-pub':'badge-draft'}">${a.is_published?'Terbit':'Draft'}</span></td>
