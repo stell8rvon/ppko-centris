@@ -14,6 +14,9 @@
     .form-group { margin-bottom: 1rem; text-align: left; }
     .btn-full { width: 100%; justify-content: center; margin-top: 1rem; }
     .error-msg { color: #d32f2f; background: #ffebee; padding: 0.5rem; border-radius: var(--radius-sm); font-size: 0.9rem; margin-bottom: 1rem; display: none; }
+    @media (max-width: 480px) {
+      .login-card { padding: 1.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -25,15 +28,24 @@
 
     <div id="errorMsg" class="error-msg"></div>
 
-    <form id="loginForm">
+    <form id="loginForm" autocomplete="off">
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input type="email" id="email" class="form-input" placeholder="Masukkan email admin" required>
+        <input type="email" id="email" class="form-input" 
+          placeholder="Masukkan email admin"
+          autocomplete="username"
+          value=""
+          required>
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
         <div style="position: relative;">
-          <input type="password" id="password" class="form-input" placeholder="••••••••" required style="padding-right: 40px;">
+          <input type="password" id="password" class="form-input" 
+            placeholder="Masukkan password"
+            autocomplete="new-password"
+            value=""
+            required
+            style="padding-right: 40px;">
           <i id="togglePassword" class="fa-solid fa-eye" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-light);"></i>
         </div>
       </div>

@@ -4,511 +4,436 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Dashboard — KO AWIS</title>
-  <link rel="stylesheet" href="../css/styleadmin.css">
-  <link rel="icon" type="image/png" href="../assets/logo-koawis-brand.png">  
-  <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/styleadmin.css?v=1.1">
+  <link rel="icon" type="image/png" href="../assets/logo-koawis-brand.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-client.js"></script>
   <style>
-    /* Sedikit perbaikan tampilan agar editornya tinggi dan rapi */
-    .ck-editor__editable { min-height: 250px; font-family: 'Poppins', sans-serif; }
+    /* Tambahan khusus dashboard */
+    .quick-link-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .quick-link-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.1rem 1.35rem;
+      background: rgba(255,255,255,.55);
+      border: 1.5px solid var(--c-border);
+      border-radius: var(--r-md);
+      text-decoration: none;
+      color: var(--c-text);
+      transition: all var(--dur) var(--ease);
+      backdrop-filter: blur(8px);
+    }
+
+    .quick-link-card:hover {
+      background: rgba(255,255,255,.85);
+      border-color: var(--c-accent);
+      transform: translateY(-3px);
+      box-shadow: var(--sh-md);
+    }
+
+    .quick-link-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+
+    .quick-link-icon.mod  { background: #f4e8d8; color: var(--c-brown-600); }
+    .quick-link-icon.art  { background: rgba(224,139,70,.12); color: var(--c-accent); }
+
+    .quick-link-text strong { display: block; font-size: .9rem; font-weight: 700; color: var(--c-brown-800); }
+    .quick-link-text span   { font-size: .78rem; color: var(--c-text-lite); }
+
+    .quick-link-arrow {
+      margin-left: auto;
+      font-size: .85rem;
+      color: var(--c-border-hi);
+      transition: transform var(--dur) var(--ease);
+    }
+
+    .quick-link-card:hover .quick-link-arrow { transform: translateX(4px); color: var(--c-accent); }
+
+    .welcome-hero {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .welcome-text { flex: 1; min-width: 200px; }
+
+    .tip-box {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(224,139,70,.1), rgba(196,136,90,.06));
+      border: 1px solid rgba(224,139,70,.2);
+      border-radius: var(--r-md);
+      padding: 1.1rem 1.25rem;
+      min-width: 200px;
+      max-width: 280px;
+    }
+
+    .tip-box .tip-label {
+      font-size: .7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--c-accent);
+      margin-bottom: .4rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tip-box p {
+      font-size: .82rem;
+      color: var(--c-text-mid);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    @media (max-width: 640px) {
+      .tip-box { max-width: 100%; width: 100%; }
+      .welcome-hero { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
-  <div class="admin-container">
-    <div class="admin-header">
-      <img src="../assets/logo-koawis-rectangle.png" alt="Logo KO AWIS" style="height: 120px; margin-bottom: 0px;">
-      <h1 style="margin-top: 0; color: #3D2314; font-size: 1.5rem;">Admin Dashboard</h1>
-      <p>Halo, <strong>Admin</strong>! Kelola modul pembelajaran dan konten.</p>
-      
-      <div class="admin-nav">
-        <button onclick="showSection('modules', this)" class="active">Manajemen Modul</button>
-        <button onclick="showSection('articles', this)">Artikel</button>
-        <button onclick="handleLogout()" class="btn-logout">Logout</button>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="dashboard-layout">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="adminSidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/logo-koawis-brand.png" class="sidebar-brand-logo" alt="KO AWIS Logo">
+        <div class="sidebar-brand-text">
+          <strong>KO AWIS</strong>
+          <span>Admin Panel</span>
+        </div>
       </div>
 
-    </div>
-
-    <!-- MODULES SECTION -->
-    <div class="admin-section active" id="section-modules">
-      <div class="card">
-        <h2 style="margin-top:0; color:#3D2314;">Tambah Modul Baru</h2>
-        <div id="alertBox"></div>
-        <form id="moduleForm" onsubmit="saveModule(event)">
-          <input type="hidden" id="moduleIdInput" value="">
-          <input type="hidden" id="moduleImageOld"> <!-- Simpan URL lama -->
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Pilar Pembelajaran</label>
-              <select class="form-select" id="trackSelect" required>
-                <option value="">-- Pilih Track --</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Judul Modul</label>
-              <input class="form-input" id="titleInput" placeholder="Judul modul" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Icon</label>
-              <input class="form-input" id="iconInput" placeholder="📚" value="📚">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Sub-judul</label>
-            <input class="form-input" id="subtitleInput" placeholder="Sub-judul modul (opsional)">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Gambar Sampul Modul</label>
-            <input type="file" class="form-input" id="moduleImageInput" accept="image/*">
-            <div id="moduleImagePreview" style="margin-top:10px; display:none;">
-              <img src="" style="height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
-              <p style="font-size:0.8rem; color:#666;">Preview Gambar</p>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Deskripsi Singkat</label>
-            <textarea class="form-textarea" id="descriptionInput" placeholder="Deskripsi singkat modul" required></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Konten Lengkap Modul</label>
-            <textarea class="form-textarea" id="contentInput" placeholder="Konten modul" required style="min-height:200px;"></textarea>
-          </div>
-          <div style="display: flex; gap: 10px;">
-            <button type="submit" class="btn-submit" id="btnSubmitForm">➕ Tambah Modul</button>
-            <button type="button" class="btn-submit" id="btnCancelEdit" style="display: none; background: #666;" onclick="cancelEdit()">❌ Batal Edit</button>
-          </div>
-        </form>
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar" id="avatarInitial">A</div>
+        <div class="sidebar-profile-info">
+          <span class="name" id="adminEmail">Admin KO AWIS</span>
+          <span class="role">● Online</span>
+        </div>
       </div>
 
-      <div class="card">
-        <h2 style="margin-top:0; color:#3D2314;">Daftar Modul</h2>
-        <table class="module-table" id="moduleTable">
-          <thead>
-            <tr><th>Cover</th><th>Judul</th><th>Jalur</th><th>Status</th><th>Aksi</th></tr>
-          </thead>
-          <tbody id="moduleBody">
-            <tr><td colspan="5" style="text-align:center; color:#999;">Loading...</td></tr>
-          </tbody>
-        </table>
+      <div class="sidebar-divider"></div>
+
+      <nav class="sidebar-nav">
+        <a href="index.html" class="sidebar-nav-item active">
+          <i class="fas fa-chart-line"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="modul.html" class="sidebar-nav-item">
+          <i class="fas fa-graduation-cap"></i>
+          <span>Kelola Modul</span>
+        </a>
+        <a href="berita.html" class="sidebar-nav-item">
+          <i class="fas fa-newspaper"></i>
+          <span>Kelola Artikel</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button onclick="handleLogout()" class="btn-logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Keluar</span>
+        </button>
       </div>
-    </div>
+    </aside>
 
-    <!-- ARTICLES SECTION -->
-    <div class="admin-section" id="section-articles">
-      <div class="card">
-        <h2 style="margin-top:0; color:#3D2314;">Manajemen Berita & Artikel</h2>
-        <div id="alertBoxArticle"></div>
-        
-        <form id="articleForm" onsubmit="saveArticle(event)">
-          <input type="hidden" id="articleIdInput">
-          <input type="hidden" id="articleImageOld"> <!-- Simpan URL lama -->
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Judul Artikel</label>
-              <input class="form-input" id="artTitleInput" placeholder="Judul berita..." required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Kategori</label>
-              <select class="form-select" id="artCategoryInput" required>
-                <option value="pertanian">Pertanian</option>
-                <option value="program">Program Desa</option>
-                <option value="komunitas">Komunitas</option>
-                <option value="pasar">Pasar Kakao</option>
-              </select>
-            </div>
-          </div>
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
 
-          <div class="form-group">
-            <label class="form-label">Gambar Utama (Thumbnail)</label>
-            <input type="file" class="form-input" id="artImageInput" accept="image/*">
-            <div id="imagePreview" style="margin-top:10px; display:none;">
-              <img src="" style="height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
-              <p style="font-size:0.8rem; color:#666;">Preview Gambar</p>
-            </div>
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="btn-menu-toggle" onclick="toggleSidebar()" id="menuToggle" style="display:none;">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2>
+            <i class="fas fa-chart-line" style="color:var(--c-accent); font-size:1rem;"></i>
+            Dashboard
+          </h2>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-date" id="currentDate">
+            <i class="far fa-calendar-alt"></i>
+            <span id="dateText">—</span>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">Konten Artikel</label>
-            <textarea class="form-textarea" id="artContentInput" placeholder="Tulis artikel di sini..."></textarea>
-          </div>
-
-          <div style="display: flex; gap: 10px;">
-            <button type="submit" class="btn-submit" id="btnSubmitArticle">➕ Terbitkan Artikel</button>
-            <button type="button" class="btn-submit" id="btnCancelArt" style="display: none; background: #666;" onclick="cancelEditArticle()">❌ Batal</button>
-          </div>
-        </form>
+        </div>
       </div>
 
-      <div class="card">
-        <h2 style="margin-top:0; color:#3D2314;">Daftar Artikel</h2>
-        <table class="module-table">
-          <thead><tr><th>Gambar</th><th>Judul</th><th>Kategori</th><th>Tanggal</th><th>Aksi</th></tr></thead>
-          <tbody id="articleBody"><tr><td colspan="5">Memuat...</td></tr></tbody>
-        </table>
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card stat-mod delay-1">
+          <div class="stat-card-info">
+            <span class="count" id="stat-mod">
+              <i class="fas fa-spinner fa-spin" style="font-size:1.2rem;"></i>
+            </span>
+            <span class="label">Total Modul</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+        </div>
+        <div class="stat-card stat-art delay-2">
+          <div class="stat-card-info">
+            <span class="count" id="stat-art">
+              <i class="fas fa-spinner fa-spin" style="font-size:1.2rem;"></i>
+            </span>
+            <span class="label">Total Artikel</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-newspaper"></i></div>
+        </div>
+        <div class="stat-card stat-db delay-3">
+          <div class="stat-card-info">
+            <span class="count" id="stat-db" style="font-size:1.3rem;">Memeriksa...</span>
+            <span class="label">Koneksi Database</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-database"></i></div>
+        </div>
       </div>
-    </div>
+
+      <!-- WELCOME CARD -->
+      <div class="card delay-2">
+        <div class="card-body">
+          <div class="welcome-hero">
+            <div class="welcome-text">
+              <h2 style="font-size:1.3rem; font-weight:800; color:var(--c-brown-800); margin-bottom:.55rem; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;">
+                <span style="font-size:1.3rem;">🌱</span>
+                Selamat Datang di Admin Panel
+              </h2>
+              <p style="color:var(--c-text-mid); line-height:1.8; font-size:.88rem; margin-bottom:1.25rem; max-width:520px;">
+                Kelola seluruh konten KO AWIS — mulai dari modul pembelajaran hingga artikel berita.
+                Semua data tersimpan otomatis ke cloud Supabase secara <em>real-time</em>.
+              </p>
+
+              <div class="quick-link-grid">
+                <a href="modul.html" class="quick-link-card">
+                  <div class="quick-link-icon mod"><i class="fas fa-graduation-cap"></i></div>
+                  <div class="quick-link-text">
+                    <strong>Kelola Modul</strong>
+                    <span>Tambah, edit, atau hapus materi</span>
+                  </div>
+                  <i class="fas fa-chevron-right quick-link-arrow"></i>
+                </a>
+                <a href="berita.html" class="quick-link-card">
+                  <div class="quick-link-icon art"><i class="fas fa-newspaper"></i></div>
+                  <div class="quick-link-text">
+                    <strong>Kelola Artikel</strong>
+                    <span>Tulis & publikasikan berita</span>
+                  </div>
+                  <i class="fas fa-chevron-right quick-link-arrow"></i>
+                </a>
+              </div>
+            </div>
+
+            <div class="tip-box">
+              <div class="tip-label">
+                <i class="fas fa-lightbulb"></i> Panduan Cepat
+              </div>
+              <p>
+                <strong>Modul Pembelajaran</strong> — Pilih pilar (Hilir, Entrepreneur, Digital, Sirkular), isi konten, lalu ubah status ke <em>Terbit</em>.<br><br>
+                <strong>Artikel / Berita</strong> — Tulis judul, pilih kategori, unggah gambar, dan terbitkan. Estimasi waktu baca dihitung otomatis.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODUL TERBARU -->
+      <div class="card delay-3">
+        <div class="card-header">
+          <h2><i class="fas fa-graduation-cap"></i> Modul Terbaru</h2>
+          <a href="modul.html" class="btn btn-ghost btn-sm">
+            <i class="fas fa-arrow-right"></i> Lihat Semua
+          </a>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:55px;">Cover</th>
+                <th>Judul Modul</th>
+                <th style="width:130px;">Pilar</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentModules">
+              <tr>
+                <td colspan="4" style="text-align:center; padding:2rem; color:#aaa;">
+                  <i class="fas fa-spinner fa-spin"></i>
+                  <span style="margin-left:8px;">Memuat...</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ARTIKEL TERBARU -->
+      <div class="card" style="animation-delay:.2s;">
+        <div class="card-header">
+          <h2><i class="fas fa-newspaper"></i> Artikel Terbaru</h2>
+          <a href="berita.html" class="btn btn-ghost btn-sm">
+            <i class="fas fa-arrow-right"></i> Lihat Semua
+          </a>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:55px;">Cover</th>
+                <th>Judul Artikel</th>
+                <th style="width:120px;">Kategori</th>
+                <th class="col-date" style="width:120px;">Tanggal</th>
+                <th style="width:90px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentArticles">
+              <tr>
+                <td colspan="5" style="text-align:center; padding:2rem; color:#aaa;">
+                  <i class="fas fa-spinner fa-spin"></i>
+                  <span style="margin-left:8px;">Memuat...</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
   </div>
-  <script>
-    let contentEditor;
-    let articleEditor; // Editor khusus artikel
 
+  <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // 0. Cek Login Supabase (Bukan PHP lagi)
+      // Cek auth
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        window.location.href = 'login.html'; // Redirect ke login.html (Supabase)
-        return;
+      if (!session) { window.location.href = 'login.html'; return; }
+
+      // Tanggal
+      const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+      document.getElementById('dateText').textContent = new Date().toLocaleDateString('id-ID', opts);
+
+      // Email admin di sidebar
+      if (session.user?.email) {
+        const email = session.user.email;
+        document.getElementById('adminEmail').textContent = email.split('@')[0];
+        document.getElementById('avatarInitial').textContent = email[0].toUpperCase();
       }
 
-      // 1. Init Editor Modul
-      ClassicEditor
-        .create(document.querySelector('#contentInput'), {
-            extraPlugins: [ MyCustomUploadAdapterPlugin ]
-        })
-        .then(editor => { contentEditor = editor; })
-        .catch(error => console.error(error));
-      
-      // 2. Init Editor Artikel dengan Custom Upload Adapter (Supabase)
-      ClassicEditor
-        .create(document.querySelector('#artContentInput'), {
-            extraPlugins: [ MyCustomUploadAdapterPlugin ]
-        })
-        .then(editor => { articleEditor = editor; })
-        .catch(error => console.error(error));
-
-      loadTracks();
-      loadModules();
-      loadArticles();
-
-      // 3. Preview Gambar Thumbnail saat dipilih
-      document.getElementById('artImageInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const preview = document.getElementById('imagePreview');
-            preview.style.display = 'block';
-            preview.querySelector('img').src = e.target.result;
-          }
-          reader.readAsDataURL(file);
-        }
+      // Tampilkan menu toggle jika layar kecil
+      if (window.innerWidth <= 1024) {
+        document.getElementById('menuToggle').style.display = 'flex';
+      }
+      window.addEventListener('resize', () => {
+        document.getElementById('menuToggle').style.display =
+          window.innerWidth <= 1024 ? 'flex' : 'none';
       });
 
-      // 4. Preview Gambar Modul saat dipilih
-      document.getElementById('moduleImageInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const preview = document.getElementById('moduleImagePreview');
-            preview.style.display = 'block';
-            preview.querySelector('img').src = e.target.result;
-          }
-          reader.readAsDataURL(file);
-        }
-      });
+      loadStats();
+      loadRecentModules();
+      loadRecentArticles();
     });
 
-    async function handleLogout() { 
-      await supabase.auth.signOut(); 
-      window.location.href = 'login.html'; 
-    }
-    
-    function showSection(section, btn) {
-      document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
-      document.getElementById('section-' + section).classList.add('active');
-      document.querySelectorAll('.admin-nav button').forEach(el => el.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-    }
+    async function loadStats() {
+      const [{ data: mods, error: e1 }, { data: arts, error: e2 }] = await Promise.all([
+        supabase.from('modules').select('id'),
+        supabase.from('articles').select('id')
+      ]);
+      document.getElementById('stat-mod').textContent = e1 ? '—' : mods.length;
+      document.getElementById('stat-art').textContent = e2 ? '—' : arts.length;
 
-    async function loadTracks() {
-      // Ganti fetch PHP dengan Supabase
-      const { data, error } = await supabase.from('tracks').select('*');
-      if (data) {
-        const select = document.getElementById('trackSelect');
-        // Reset opsi kecuali yang pertama
-        select.innerHTML = '<option value="">-- Pilih Track --</option>';
-        data.forEach(track => {
-          const opt = document.createElement('option');
-          opt.value = track.id;
-          opt.textContent = track.title;
-          select.appendChild(opt);
-        });
-      }
+      const dbOk = !e1 && !e2;
+      document.getElementById('stat-db').innerHTML =
+        dbOk ? '<span style="color:var(--c-success);">✓ Aktif</span>'
+             : '<span style="color:var(--c-danger);">✗ Error</span>';
     }
 
-    async function loadModules() {
-      const tbody = document.getElementById('moduleBody');
-      // Join tabel tracks untuk ambil nama track
-      const { data, error } = await supabase
-        .from('modules')
-        .select('*, tracks(title)')
-        .order('created_at', { ascending: false });
+    async function loadRecentModules() {
+      const tbody = document.getElementById('recentModules');
+      const { data, error } = await supabase.from('modules')
+        .select('id, title, image_url, is_published, icon, tracks(title, slug)')
+        .order('created_at', { ascending: false })
+        .limit(3);
 
-      if (error) {
-        tbody.innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${error.message}</td></tr>`;
-        return;
-      }
-      if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">Belum ada modul.</td></tr>';
+      const PILAR_BADGE = { hilir:'badge-hilir', entre:'badge-entre', entrepreneur:'badge-entre', digital:'badge-digital', sirkular:'badge-sirkular' };
+      const PILAR_ICON  = { hilir:'🏭', entre:'💼', entrepreneur:'💼', digital:'💻', sirkular:'♻️' };
+
+      if (error || !data || !data.length) {
+        tbody.innerHTML = `<tr><td colspan="4">
+          <div class="empty-state" style="padding:2rem 1rem;">
+            <i class="fas fa-graduation-cap"></i>
+            <p>${error ? 'Gagal: '+error.message : 'Belum ada modul.'}</p>
+          </div></td></tr>`;
         return;
       }
 
-      tbody.innerHTML = data.map(m => `
-        <tr>
-          <td><img src="${m.image_url || '../assets/logo-koawis-brand.png'}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;"></td>
-          <td>${m.title}</td>
-          <td>${m.tracks?.title || '-'}</td>
-          <td>${m.is_published ? 'Terbit' : 'Draft'}</td>
-          <td>
-            <button class="btn-action btn-edit" onclick="editModule(${m.id})">Edit</button>
-            <button class="btn-action btn-delete" onclick="deleteModule(${m.id}, '${m.title.replace(/'/g,"\\'")}')">Hapus</button>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = data.map(m => {
+        const slug = m.tracks?.slug || '';
+        const badgeKey = Object.keys(PILAR_BADGE).find(k => slug.includes(k)) || 'hilir';
+        return `
+          <tr style="animation:slideUp .3s ease both;">
+            <td><img src="${m.image_url||'../assets/logo-koawis-brand.png'}"
+              style="width:46px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--c-border);"
+              onerror="this.src='../assets/logo-koawis-brand.png'"></td>
+            <td class="col-title" style="font-weight:600;font-size:.87rem;color:var(--c-brown-900);">${m.title}</td>
+            <td><span class="badge ${PILAR_BADGE[badgeKey]}">${PILAR_ICON[badgeKey]||''} ${m.tracks?.title||'—'}</span></td>
+            <td><span class="badge ${m.is_published?'badge-pub':'badge-draft'}">${m.is_published?'Terbit':'Draft'}</span></td>
+          </tr>`;
+      }).join('');
     }
 
-    function cancelEdit() {
-      document.getElementById('moduleForm').reset();
-      document.getElementById('moduleIdInput').value = '';
-      document.getElementById('moduleImageOld').value = '';
-      document.getElementById('moduleImagePreview').style.display = 'none';
-      contentEditor.setData('');
-      document.getElementById('btnSubmitForm').innerHTML = '➕ Tambah Modul';
-      document.getElementById('btnCancelEdit').style.display = 'none';
-    }
+    async function loadRecentArticles() {
+      const tbody = document.getElementById('recentArticles');
+      const { data, error } = await supabase.from('articles')
+        .select('id, title, category, created_at, image_url, is_published')
+        .order('created_at', { ascending: false })
+        .limit(3);
 
-    async function editModule(id) {
-      const { data: m, error } = await supabase.from('modules').select('*').eq('id', id).single();
-      
-      if (m) {
-        document.getElementById('moduleIdInput').value = m.id;
-        document.getElementById('trackSelect').value = m.track_id;
-        document.getElementById('titleInput').value = m.title;
-        document.getElementById('iconInput').value = m.icon || '📚';
-        document.getElementById('moduleImageOld').value = m.image_url;
-        document.getElementById('subtitleInput').value = m.subtitle || '';
-        document.getElementById('descriptionInput').value = m.description || '';
-        contentEditor.setData(m.content || '');
-
-        if (m.image_url) {
-          const preview = document.getElementById('moduleImagePreview');
-          preview.style.display = 'block';
-          preview.querySelector('img').src = m.image_url;
-        }
-
-        document.getElementById('btnSubmitForm').innerHTML = '💾 Update Modul';
-        document.getElementById('btnCancelEdit').style.display = 'inline-block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        alert('Gagal mengambil data modul: ' + (error?.message || 'Unknown error'));
+      if (error || !data.length) {
+        tbody.innerHTML = `<tr><td colspan="5">
+          <div class="empty-state" style="padding:2rem 1rem;">
+            <i class="fas fa-newspaper"></i>
+            <p>${error ? 'Gagal memuat: ' + error.message : 'Belum ada artikel.'}</p>
+          </div></td></tr>`;
+        return;
       }
-    }
 
-    async function saveModule(e) {
-      e.preventDefault();
-      const alertBox = document.getElementById('alertBox');
-      const btn = document.getElementById('btnSubmitForm');
-      btn.disabled = true; btn.textContent = 'Memproses...';
-      
-      try {
-        const id = document.getElementById('moduleIdInput').value;
-        const fileInput = document.getElementById('moduleImageInput');
-        let imageUrl = document.getElementById('moduleImageOld').value;
-
-        // Upload Gambar jika ada
-        if (fileInput.files.length > 0) {
-          const file = fileInput.files[0];
-          const fileName = `modul_${Date.now()}_${file.name.replace(/\s+/g, '-')}`;
-          const { data, error } = await supabase.storage.from('article-images').upload(fileName, file);
-          if (error) throw error;
-          const { data: urlData } = supabase.storage.from('article-images').getPublicUrl(fileName);
-          imageUrl = urlData.publicUrl;
-        }
-
-        const title = document.getElementById('titleInput').value;
-        const payload = {
-          track_id: document.getElementById('trackSelect').value,
-          title: title,
-          subtitle: document.getElementById('subtitleInput').value,
-          description: document.getElementById('descriptionInput').value,
-          content: contentEditor.getData(), 
-          icon: document.getElementById('iconInput').value,
-          image_url: imageUrl,
-          is_published: true
-        };
-
-        let result;
-        if (id) {
-          // Update: Slug tidak diubah agar link tidak rusak
-          result = await supabase.from('modules').update(payload).eq('id', id);
-        } else {
-          // Insert: Buat slug otomatis (judul + timestamp agar unik)
-          payload.slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
-          result = await supabase.from('modules').insert([payload]);
-        }
-
-        if (result.error) throw result.error;
-
-        alertBox.innerHTML = `<div class="alert alert-success">✅ Modul berhasil ${id ? 'diperbarui' : 'dibuat'}!</div>`;
-        cancelEdit(); 
-        loadModules();
-        setTimeout(() => alertBox.innerHTML = '', 5000);
-
-      } catch (err) {
-        console.error(err);
-        alertBox.innerHTML = `<div class="alert alert-error">❌ Gagal: ${err.message}</div>`;
-      } finally {
-        btn.disabled = false; btn.textContent = id ? '💾 Update Modul' : '➕ Tambah Modul';
-      }
-    }
-
-    async function deleteModule(id, title) {
-      if (!confirm('Yakin hapus modul "' + title + '"?')) return;
-      
-      const { error } = await supabase.from('modules').delete().eq('id', id);
-      const alertBox = document.getElementById('alertBox');
-      
-      if (!error) {
-        alertBox.innerHTML = '<div class="alert alert-success">✅ Modul berhasil dihapus!</div>';
-        loadModules();
-        setTimeout(() => alertBox.innerHTML = '', 5000);
-      } else {
-        alertBox.innerHTML = '<div class="alert alert-error">❌ Gagal: ' + error.message + '</div>';
-      }
-    }
-
-    /* =========================================
-       LOGIKA ARTIKEL (SUPABASE FULL)
-       ========================================= */
-
-    async function loadArticles() {
-      const tbody = document.getElementById('articleBody');
-      const { data, error } = await supabase.from('articles').select('*').order('created_at', { ascending: false });
-      if (error) { tbody.innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${error.message}</td></tr>`; return; }
-      if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999;">Belum ada artikel.</td></tr>`; return; }
       tbody.innerHTML = data.map(a => `
-        <tr>
-          <td><img src="${a.image_url || '../assets/logo-koawis-brand.png'}" style="width:60px; height:40px; object-fit:cover; border-radius:4px;"></td>
-          <td>${a.title}</td>
-          <td><span style="background:#eee; padding:2px 8px; border-radius:4px; font-size:0.8rem;">${a.category}</span></td>
-          <td>${new Date(a.created_at).toLocaleDateString('id-ID')}</td>
-          <td>
-            <button class="btn-action btn-edit" onclick="editArticle('${a.id}')">Edit</button>
-            <button class="btn-action btn-delete" onclick="deleteArticle('${a.id}')">Hapus</button>
+        <tr style="animation:slideUp .3s ease both;">
+          <td><img src="${a.image_url||'../assets/logo-koawis-brand.png'}"
+            style="width:46px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--c-border);"
+            onerror="this.src='../assets/logo-koawis-brand.png'"></td>
+          <td class="col-title" style="font-weight:600;font-size:.87rem;color:var(--c-brown-900);">${a.title}</td>
+          <td><span class="badge badge-cat">${a.category||'—'}</span></td>
+          <td class="col-date" style="font-size:.8rem;color:var(--c-text-lite);">
+            ${new Date(a.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}
           </td>
-        </tr>
-      `).join('');
+          <td><span class="badge ${a.is_published?'badge-pub':'badge-draft'}">${a.is_published?'Terbit':'Draft'}</span></td>
+        </tr>`).join('');
     }
 
-    async function saveArticle(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btnSubmitArticle');
-      const alertBox = document.getElementById('alertBoxArticle');
-      btn.disabled = true; btn.textContent = 'Memproses...';
-
-      try {
-        const id = document.getElementById('articleIdInput').value;
-        const fileInput = document.getElementById('artImageInput');
-        let imageUrl = document.getElementById('articleImageOld').value;
-
-        if (fileInput.files.length > 0) {
-          const file = fileInput.files[0];
-          const fileName = `thumb_${Date.now()}_${file.name.replace(/\s+/g, '-')}`;
-          const { data, error } = await supabase.storage.from('article-images').upload(fileName, file);
-          if (error) throw error;
-          const { data: urlData } = supabase.storage.from('article-images').getPublicUrl(fileName);
-          imageUrl = urlData.publicUrl;
-        }
-
-        const title = document.getElementById('artTitleInput').value;
-        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now();
-        
-        const payload = {
-          title: title,
-          slug: slug,
-          category: document.getElementById('artCategoryInput').value,
-          content: articleEditor.getData(),
-          excerpt: articleEditor.getData().replace(/<[^>]*>?/gm, '').substring(0, 150) + '...',
-          image_url: imageUrl,
-          is_published: true
-        };
-
-        let result;
-        if (id) {
-          delete payload.slug; 
-          result = await supabase.from('articles').update(payload).eq('id', id);
-        } else {
-          result = await supabase.from('articles').insert([payload]);
-        }
-
-        if (result.error) throw result.error;
-        alertBox.innerHTML = `<div class="alert alert-success">✅ Artikel berhasil disimpan!</div>`;
-        cancelEditArticle(); loadArticles();
-        setTimeout(() => alertBox.innerHTML = '', 3000);
-      } catch (err) {
-        console.error(err);
-        alertBox.innerHTML = `<div class="alert alert-error">❌ Gagal: ${err.message}</div>`;
-      } finally {
-        btn.disabled = false; btn.textContent = id ? '💾 Update Artikel' : '➕ Terbitkan Artikel';
-      }
+    async function handleLogout() {
+      await supabase.auth.signOut();
+      window.location.href = 'login.html';
     }
 
-    async function editArticle(id) {
-      const { data, error } = await supabase.from('articles').select('*').eq('id', id).single();
-      if (data) {
-        document.getElementById('articleIdInput').value = data.id;
-        document.getElementById('artTitleInput').value = data.title;
-        document.getElementById('artCategoryInput').value = data.category;
-        document.getElementById('articleImageOld').value = data.image_url;
-        articleEditor.setData(data.content || '');
-        if (data.image_url) {
-          const preview = document.getElementById('imagePreview');
-          preview.style.display = 'block';
-          preview.querySelector('img').src = data.image_url;
-        }
-        document.getElementById('btnSubmitArticle').textContent = '💾 Update Artikel';
-        document.getElementById('btnCancelArt').style.display = 'inline-block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-
-    function cancelEditArticle() {
-      document.getElementById('articleForm').reset();
-      document.getElementById('articleIdInput').value = '';
-      document.getElementById('articleImageOld').value = '';
-      document.getElementById('imagePreview').style.display = 'none';
-      articleEditor.setData('');
-      document.getElementById('btnSubmitArticle').textContent = '➕ Terbitkan Artikel';
-      document.getElementById('btnCancelArt').style.display = 'none';
-    }
-
-    async function deleteArticle(id) {
-      if(!confirm('Hapus artikel ini?')) return;
-      await supabase.from('articles').delete().eq('id', id);
-      loadArticles();
-    }
-
-    function MyCustomUploadAdapterPlugin( editor ) {
-      editor.plugins.get( 'FileRepository' ).createUploadAdapter = ( loader ) => {
-        return {
-          upload: () => {
-            return loader.file.then( file => new Promise( async ( resolve, reject ) => {
-              try {
-                const fileName = `content_${Date.now()}_${file.name.replace(/\s+/g, '-')}`;
-                const { data, error } = await supabase.storage.from('article-images').upload(fileName, file);
-                if (error) {
-                    if (error.message.includes('Bucket not found')) throw new Error("Bucket 'article-images' belum dibuat di Supabase.");
-                    throw error;
-                }
-                const { data: urlData } = supabase.storage.from('article-images').getPublicUrl(fileName);
-                resolve( { default: urlData.publicUrl } );
-              } catch (err) { reject( err.message ); }
-            }));
-          }
-        };
-      };
+    function toggleSidebar() {
+      document.getElementById('adminSidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
     }
   </script>
 </body>

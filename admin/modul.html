@@ -4,230 +4,622 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Kelola Modul — Admin KO AWIS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/styleadmin.css?v=1.1">
   <link rel="icon" type="image/png" href="../assets/logo-koawis-brand.png">
-  
-  <!-- Library -->
   <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f4f6f8; margin: 0; color: #333; }
-    
-    /* Navbar Admin */
-    .admin-nav { background: #fff; padding: 0.8rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: #3D2314; text-decoration: none; }
-    .nav-brand img { height: 36px; }
-    .nav-menu { display: flex; gap: 20px; align-items: center; }
-    .nav-item { text-decoration: none; color: #666; font-weight: 600; font-size: 0.95rem; transition: 0.2s; cursor: pointer; }
-    .nav-item:hover, .nav-item.active { color: #3D2314; }
-    .nav-item.active { border-bottom: 2px solid #3D2314; }
-    .btn-logout-nav { background: #dc3545; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 0.9rem; cursor: pointer; }
-    .nav-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #3D2314; }
-
-    /* Container */
-    .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
-    .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    
-    h1, h2 { margin-top: 0; color: #2c1a0e; }
-    .form-group { margin-bottom: 15px; }
-    .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-    .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
-    
-    .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-    .btn-primary { background: #3D2314; color: white; }
-    .btn-primary:hover { background: #5c3317; }
-    .btn-secondary { background: #e0e0e0; color: #333; }
-    .btn-danger { background: #dc3545; color: white; padding: 5px 10px; font-size: 0.85rem; }
-    .btn-edit { background: #ffc107; color: #333; padding: 5px 10px; font-size: 0.85rem; margin-right: 5px; }
-    
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #f9f9f9; font-weight: 600; }
-    
-    .ck-editor__editable { min-height: 200px; }
-    .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; }
-    .alert.success { background: #d4edda; color: #155724; display: block; }
-    .alert.error { background: #f8d7da; color: #721c24; display: block; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .admin-nav { padding: 1rem; position: relative; }
-      .nav-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; flex-direction: column; padding: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); gap: 15px; align-items: flex-start; }
-      .nav-menu.open { display: flex; }
-      .nav-toggle { display: block; }
-      .nav-item { width: 100%; padding: 5px 0; }
-      
-      .form-grid { grid-template-columns: 1fr !important; }
-      table { display: block; overflow-x: auto; white-space: nowrap; }
-    }
-  </style>
+  <script src="../js/supabase-client.js"></script>
 </head>
 <body>
 
-  <!-- Navbar -->
-  <nav class="admin-nav">
-    <a href="index.html" class="nav-brand">
-      <img src="../assets/logo-koawis-brand.png" alt="Logo">
-      <span>Admin Panel</span>
-    </a>
-    <button class="nav-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')">☰</button>
-    <div class="nav-menu" id="navMenu">
-      <a href="index.html" class="nav-item">Dashboard</a>
-      <a href="modul.html" class="nav-item active">Kelola Modul</a>
-      <a href="berita.html" class="nav-item">Kelola Berita</a>
-      <button onclick="handleLogout()" class="nav-item btn-logout-nav">Logout</button>
-    </div>
-  </nav>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-  <div class="admin-container">
-    <div class="card">
-      <h2><i class="fas fa-edit"></i> Tambah / Edit Modul</h2>
-      <div id="alertBox" class="alert"></div>
-      
-      <form id="moduleForm">
-        <input type="hidden" id="moduleId">
-        
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;" class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Pilar Pembelajaran (Track)</label>
-            <select class="form-select" id="trackSelect" required>
-              <option value="">Memuat data...</option>
-            </select>
+  <div class="dashboard-layout">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="adminSidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/logo-koawis-brand.png" class="sidebar-brand-logo" alt="KO AWIS Logo">
+        <div class="sidebar-brand-text">
+          <strong>KO AWIS</strong>
+          <span>Admin Panel</span>
+        </div>
+      </div>
+
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-profile-info">
+          <span class="name">Admin KO AWIS</span>
+          <span class="role">● Online</span>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <nav class="sidebar-nav">
+        <a href="index.html" class="sidebar-nav-item">
+          <i class="fas fa-chart-line"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="modul.html" class="sidebar-nav-item active">
+          <i class="fas fa-graduation-cap"></i>
+          <span>Kelola Modul</span>
+        </a>
+        <a href="berita.html" class="sidebar-nav-item">
+          <i class="fas fa-newspaper"></i>
+          <span>Kelola Artikel</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button onclick="handleLogout()" class="btn-logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Keluar</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="btn-menu-toggle" id="menuToggle" onclick="toggleSidebar()" style="display:none;">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2>
+            <i class="fas fa-graduation-cap" style="color:var(--c-accent); font-size:1.1rem;"></i>
+            Kelola Modul
+          </h2>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-date" id="currentDate">
+            <i class="far fa-calendar-alt"></i>
           </div>
-          <div class="form-group">
-            <label class="form-label">Judul Modul</label>
-            <input class="form-input" id="titleInput" required placeholder="Contoh: Teknik Fermentasi">
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card stat-mod delay-1">
+          <div class="stat-card-info">
+            <span class="count" id="stat-mod">—</span>
+            <span class="label">Total Modul</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+        </div>
+        <div class="stat-card stat-art delay-2">
+          <div class="stat-card-info">
+            <span class="count" id="stat-art">—</span>
+            <span class="label">Total Artikel</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-newspaper"></i></div>
+        </div>
+        <div class="stat-card stat-db delay-3">
+          <div class="stat-card-info">
+            <span class="count" style="font-size:1.35rem;">Aktif</span>
+            <span class="label">Koneksi Database</span>
+          </div>
+          <div class="stat-icon"><i class="fas fa-database"></i></div>
+        </div>
+      </div>
+
+      <!-- ═══ FORM MODUL (Collapsible, terpisah dari card list) ═══ -->
+      <div class="form-wrapper hidden" id="formWrapper">
+        <div class="form-inner">
+
+          <!-- STICKY HEADER: tutup/batal selalu kelihatan saat scroll -->
+          <div class="form-sticky-header">
+            <h3 id="formTitle">
+              <i class="fas fa-plus-circle"></i>
+              <span id="formTitleText">Tambah Modul Baru</span>
+            </h3>
+            <button type="button" class="btn btn-danger btn-sm" onclick="closeForm()">
+              <i class="fas fa-times"></i> <span class="btn-text">Tutup / Batal</span>
+            </button>
+          </div>
+
+          <div class="form-body">
+            <div id="alertBox"></div>
+
+            <form id="moduleForm" onsubmit="saveModule(event)" novalidate>
+              <input type="hidden" id="moduleId">
+              <input type="hidden" id="moduleImageOld">
+              <input type="hidden" id="trackIdInput">
+
+              <!-- ① Pilih Jenis Modul -->
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-route"></i> Jenis Modul / Pilar Pembelajaran
+                </label>
+                <span class="form-hint">Pilih satu pilar yang sesuai dengan materi modul ini.</span>
+                <div class="track-options" id="trackOptions">
+                  <!-- Diisi JS -->
+                </div>
+              </div>
+
+              <!-- ② Judul & Sub-judul -->
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label"><i class="fas fa-heading"></i> Judul Modul</label>
+                  <input class="form-input" id="titleInput"
+                    placeholder="Contoh: Standar Fermentasi Kakao" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-text-width"></i> Sub-judul
+                    <span style="font-weight:400; text-transform:none; font-size:.75rem; color:var(--c-text-lite);">(opsional)</span>
+                  </label>
+                  <input class="form-input" id="subtitleInput"
+                    placeholder="Contoh: Panduan Praktis untuk Petani">
+                </div>
+              </div>
+
+              <!-- ③ Urutan & Status -->
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label"><i class="fas fa-sort-numeric-up"></i> Urutan Tampil</label>
+                  <input type="number" class="form-input" id="orderInput" value="1" min="1" required>
+                  <span class="form-hint">Angka kecil = tampil lebih awal di halaman user.</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label"><i class="fas fa-toggle-on"></i> Status</label>
+                  <select class="form-select" id="isPublishedInput">
+                    <option value="true">✅ Terbit — Tampil di halaman user</option>
+                    <option value="false">📝 Draft — Tidak ditampilkan</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- ④ Gambar Sampul -->
+              <div class="form-group">
+                <label class="form-label"><i class="fas fa-image"></i> Gambar Sampul Modul</label>
+                <div class="file-dropzone">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <span class="dz-t">Klik atau seret gambar ke sini</span>
+                  <p class="dz-h">PNG, JPG, JPEG — maks. 5MB</p>
+                  <input type="file" id="moduleImageInput" accept="image/*">
+                </div>
+                <div class="img-preview" id="moduleImagePreview">
+                  <img src="" alt="preview">
+                  <div class="img-preview-info">
+                    <span>Gambar dipilih</span>
+                    <p>Siap diunggah saat disimpan</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ⑤ Deskripsi Singkat -->
+              <div class="form-group">
+                <label class="form-label"><i class="fas fa-align-left"></i> Deskripsi Singkat</label>
+                <textarea class="form-textarea" id="descriptionInput"
+                  placeholder="Ringkasan 1–3 kalimat tentang isi modul. Tampil di kartu modul." required></textarea>
+                <span class="form-hint">Tampil sebagai preview di halaman Modul Pembelajaran untuk user.</span>
+              </div>
+
+              <!-- ⑥ Konten Lengkap -->
+              <div class="form-group">
+                <label class="form-label"><i class="fas fa-file-alt"></i> Konten Lengkap Modul</label>
+                <textarea class="form-textarea" id="contentInput"
+                  placeholder="Tulis materi lengkap modul di sini..."></textarea>
+                <span class="form-hint">Konten ini tampil saat user membuka detail modul.</span>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="btnSubmitForm">
+                  <i class="fas fa-save"></i>
+                  <span id="btnSubmitText">Simpan Modul</span>
+                </button>
+                <button type="button" class="btn btn-ghost" onclick="resetForm()">
+                  <i class="fas fa-undo"></i> Reset Isian
+                </button>
+              </div>
+            </form>
           </div>
         </div>
+      </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;" class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Slug (URL)</label>
-            <input class="form-input" id="slugInput" required placeholder="teknik-fermentasi">
+      <!-- ═══ DAFTAR MODUL ═══ -->
+      <div class="card delay-1">
+        <div class="card-header">
+          <h2><i class="fas fa-list-ul"></i> Daftar Modul</h2>
+          <button class="btn btn-accent" id="btnOpenForm" onclick="toggleForm()">
+            <i class="fas fa-plus"></i> Tambah Modul
+          </button>
+        </div>
+
+        <!-- Filter & Search -->
+        <div class="filter-row">
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Cari judul modul..." oninput="filterModules()">
           </div>
-          <div class="form-group">
-            <label class="form-label">Urutan (Order)</label>
-            <input type="number" class="form-input" id="orderInput" value="1">
-          </div>
+          <select class="form-select filter-select" id="filterPilar" onchange="filterModules()">
+            <option value="">Semua Pilar</option>
+            <option value="hilir">Hilir</option>
+            <option value="entrepreneur">Entrepreneur</option>
+            <option value="digital">Digital</option>
+            <option value="sirkular">Sirkular</option>
+          </select>
+          <select class="form-select filter-select" id="filterStatus" onchange="filterModules()">
+            <option value="">Semua Status</option>
+            <option value="true">Terbit</option>
+            <option value="false">Draft</option>
+          </select>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Deskripsi Singkat</label>
-          <textarea class="form-textarea" id="descInput" rows="2"></textarea>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-cover" style="width:70px;">Cover</th>
+                <th class="col-title" style="min-width:140px;">Judul Modul</th>
+                <th class="col-pilar" style="width:165px;">Pilar</th>
+                <th class="col-order" style="width:90px; text-align:center;">Urutan</th>
+                <th class="col-status" style="width:100px;">Status</th>
+                <th class="col-action" style="width:90px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="moduleBody">
+              <tr>
+                <td colspan="6" style="text-align:center; padding:3rem; color:#aaa;">
+                  <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i>
+                  <p style="margin-top:.5rem;">Memuat data...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label">Konten Lengkap</label>
-          <div id="editor"></div>
-        </div>
-
-        <div style="display:flex; gap:10px;">
-          <button type="submit" class="btn btn-primary" id="btnSave"><i class="fas fa-save"></i> Simpan Modul</button>
-          <button type="button" class="btn btn-secondary" id="btnCancel" style="display:none;" onclick="resetForm()"><i class="fas fa-times"></i> Batal</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="card">
-      <h2><i class="fas fa-book"></i> Daftar Modul</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Judul</th>
-            <th>Track</th>
-            <th>Status</th>
-            <th style="width:150px;">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr><td colspan="4">Memuat data...</td></tr>
-        </tbody>
-      </table>
-    </div>
+    </main>
   </div>
 
-  <script src="../js/supabase-client.js"></script>
-
   <script>
-    let editorInstance;
-    ClassicEditor.create(document.querySelector('#editor')).then(editor => { editorInstance = editor; }).catch(error => { console.error(error); });
+    /* ─── 4 PILAR KO AWIS ─── */
+    const PILAR = [
+      { slug:'hilir',        name:'Hilir',        sub:'Pengolahan & Produksi',    icon:'🏭', badge:'badge-hilir'    },
+      { slug:'entrepreneur', name:'Entrepreneur', sub:'Bisnis & Kewirausahaan',   icon:'💼', badge:'badge-entre'    },
+      { slug:'digital',      name:'Digital',      sub:'Teknologi & Inovasi',      icon:'💻', badge:'badge-digital'  },
+      { slug:'sirkular',     name:'Sirkular',     sub:'Ekosistem Berkelanjutan',  icon:'♻️', badge:'badge-sirkular' }
+    ];
 
+    let contentEditor;
+    let tracksData = [];
+
+    /* ─── INIT ─── */
     document.addEventListener('DOMContentLoaded', async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
-      loadTracks();
-      loadModules();
-      document.getElementById('titleInput').addEventListener('input', function() {
-        document.getElementById('slugInput').value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+      const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+      document.getElementById('currentDate').innerHTML =
+        `<i class="far fa-calendar-alt"></i> ${new Date().toLocaleDateString('id-ID', opts)}`;
+
+      // Menu toggle responsive
+      const showToggle = () => {
+        const t = document.getElementById('menuToggle');
+        if (t) t.style.display = window.innerWidth <= 1024 ? 'flex' : 'none';
+      };
+      showToggle();
+      window.addEventListener('resize', showToggle);
+
+      // Init CKEditor
+      ClassicEditor.create(document.querySelector('#contentInput'), {
+        extraPlugins: [MyUploadPlugin]
+      }).then(ed => { contentEditor = ed; }).catch(console.error);
+
+      // Preview gambar
+      document.getElementById('moduleImageInput').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const p = document.getElementById('moduleImagePreview');
+          p.querySelector('img').src = ev.target.result;
+          p.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
       });
+
+      await loadTracks();
+      loadModules();
+      loadStats();
     });
 
+    /* ─── LOAD TRACKS ─── */
+    async function loadTracks() {
+      const { data } = await supabase.from('tracks').select('*').order('id');
+      tracksData = data && data.length ? data
+        : PILAR.map((p, i) => ({ id: i+1, slug: p.slug, title: p.name, icon: p.icon }));
+      renderTrackCards(null);
+    }
+
+    /* ─── RENDER TRACK CARDS ─── */
+    function renderTrackCards(selectedId) {
+      document.getElementById('trackOptions').innerHTML = PILAR.map(p => {
+        const db = tracksData.find(t =>
+          t.slug === p.slug ||
+          t.slug?.includes(p.slug.substring(0,5)) ||
+          t.title?.toLowerCase() === p.name.toLowerCase()
+        );
+        const val = db ? db.id : p.slug;
+        const checked = selectedId != null && String(val) === String(selectedId) ? 'checked' : '';
+        return `
+          <label class="track-option-card">
+            <input type="radio" name="trackRadio" value="${val}" ${checked}
+              onchange="document.getElementById('trackIdInput').value=this.value">
+            <div class="track-option-label">
+              <span class="track-icon-big">${db?.icon || p.icon}</span>
+              <span class="track-name">${db?.title || p.name}</span>
+              <span class="track-sub">${p.sub}</span>
+            </div>
+          </label>`;
+      }).join('');
+    }
+
+    /* ─── STATS ─── */
+    async function loadStats() {
+      const [{ data: m }, { data: a }] = await Promise.all([
+        supabase.from('modules').select('id'),
+        supabase.from('articles').select('id')
+      ]);
+      if (m) document.getElementById('stat-mod').textContent = m.length;
+      if (a) document.getElementById('stat-art').textContent = a.length;
+    }
+
+    /* ─── LOAD MODULES ─── */
+    async function loadModules() {
+      const tbody = document.getElementById('moduleBody');
+      const { data, error } = await supabase
+        .from('modules')
+        .select('*, tracks(title, slug)')
+        .order('order', { ascending: true });
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color:red;text-align:center;padding:2rem;">Error: ${error.message}</td></tr>`;
+        return;
+      }
+
+      document.getElementById('stat-mod').textContent = data.length;
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-box-open"></i><p>Belum ada modul. Klik "Tambah Modul" untuk mulai.</p></div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(m => {
+        const slug = m.tracks?.slug || '';
+        const pilar = PILAR.find(p => slug === p.slug || slug.includes(p.slug.substring(0,5))) || PILAR[0];
+        return `
+          <tr style="animation:slideUp .3s ease both;"
+              data-title="${m.title.toLowerCase()}"
+              data-pilar="${slug}"
+              data-pub="${m.is_published}">
+            <td class="col-cover"><img src="${m.image_url || '../assets/logo-koawis-brand.png'}"
+              style="width:52px;height:42px;object-fit:cover;border-radius:7px;border:1px solid var(--c-border);"
+              onerror="this.src='../assets/logo-koawis-brand.png'"></td>
+            <td class="col-title">
+              <div style="font-weight:700;color:var(--c-brown-900);font-size:.88rem;">${m.title}</div>
+              ${m.subtitle?`<div style="font-size:.76rem;color:var(--c-text-lite);margin-top:2px;">${m.subtitle}</div>`:''}
+            </td>
+            <td class="col-pilar"><span class="badge ${pilar.badge}">${pilar.icon} ${m.tracks?.title||pilar.name}</span></td>
+            <td class="col-order" style="text-align:center;font-weight:700;color:var(--c-brown-600);">${m.order||0}</td>
+            <td class="col-status"><span class="badge ${m.is_published?'badge-pub':'badge-draft'}">${m.is_published?'Terbit':'Draft'}</span></td>
+            <td class="col-action">
+              <div style="display:flex;gap:6px;">
+                <button class="btn-action btn-edit" title="Edit" onclick="editModule(${m.id})"><i class="fas fa-edit"></i></button>
+                <button class="btn-action btn-delete" title="Hapus" onclick="deleteModule(${m.id},'${m.title.replace(/'/g,"\\'")}')"><i class="fas fa-trash-alt"></i></button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    /* ─── FILTER MODULES ─── */
+    function filterModules() {
+      const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      const pilar = document.getElementById('filterPilar')?.value || '';
+      const status = document.getElementById('filterStatus')?.value || '';
+
+      const rows = document.querySelectorAll('#moduleBody tr[data-title]');
+      let visible = 0;
+
+      rows.forEach(row => {
+        const title = row.dataset.title || '';
+        const rowPilar = row.dataset.pilar || '';
+        const rowPub = row.dataset.pub || '';
+
+        const matchQ = !q || title.includes(q);
+        const matchPilar = !pilar || rowPilar.includes(pilar);
+        const matchStatus = !status || rowPub === status;
+
+        row.style.display = (matchQ && matchPilar && matchStatus) ? '' : 'none';
+        if (matchQ && matchPilar && matchStatus) visible++;
+      });
+
+      const tbody = document.getElementById('moduleBody');
+      const noResultRow = tbody.querySelector('.no-result-row');
+      if (visible === 0 && rows.length > 0) {
+        if (!noResultRow) {
+          const tr = document.createElement('tr');
+          tr.className = 'no-result-row';
+          tr.innerHTML = `<td colspan="6"><div class="empty-state" style="padding:1.5rem;"><i class="fas fa-search"></i><p>Tidak ada modul yang cocok dengan filter.</p></div></td>`;
+          tbody.appendChild(tr);
+        }
+      } else if (noResultRow) {
+        noResultRow.remove();
+      }
+    }
+
+    /* ─── TOGGLE / OPEN / CLOSE ─── */
+    function toggleForm() {
+      const w = document.getElementById('formWrapper');
+      if (w.classList.contains('hidden')) openForm();
+      else closeForm();
+    }
+
+    function openForm() {
+      const w = document.getElementById('formWrapper');
+      w.classList.remove('hidden');
+      const btn = document.getElementById('btnOpenForm');
+      btn.innerHTML = '<i class="fas fa-minus"></i> Tutup Form';
+      btn.className = 'btn btn-ghost';
+      w.scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+
+    function closeForm() {
+      document.getElementById('formWrapper').classList.add('hidden');
+      const btn = document.getElementById('btnOpenForm');
+      btn.innerHTML = '<i class="fas fa-plus"></i> Tambah Modul';
+      btn.className = 'btn btn-accent';
+      resetForm();
+    }
+
+    function resetForm() {
+      document.getElementById('moduleForm').reset();
+      document.getElementById('moduleId').value = '';
+      document.getElementById('moduleImageOld').value = '';
+      document.getElementById('trackIdInput').value = '';
+      document.getElementById('moduleImagePreview').style.display = 'none';
+      if (contentEditor) contentEditor.setData('');
+      renderTrackCards(null);
+      document.getElementById('formTitleText').textContent = 'Tambah Modul Baru';
+      document.querySelector('#formTitle i').className = 'fas fa-plus-circle';
+      document.getElementById('btnSubmitText').textContent = 'Simpan Modul';
+    }
+
+    /* ─── EDIT ─── */
+    async function editModule(id) {
+      const { data: m, error } = await supabase.from('modules').select('*').eq('id', id).single();
+      if (!m) { alert('Gagal: ' + (error?.message || 'unknown')); return; }
+
+      openForm();
+      document.getElementById('moduleId').value = m.id;
+      document.getElementById('moduleImageOld').value = m.image_url || '';
+      document.getElementById('titleInput').value = m.title;
+      document.getElementById('subtitleInput').value = m.subtitle || '';
+      document.getElementById('orderInput').value = m.order || 1;
+      document.getElementById('descriptionInput').value = m.description || '';
+      document.getElementById('isPublishedInput').value = m.is_published ? 'true' : 'false';
+      if (contentEditor) contentEditor.setData(m.content || '');
+
+      renderTrackCards(m.track_id);
+      document.getElementById('trackIdInput').value = m.track_id;
+
+      if (m.image_url) {
+        const p = document.getElementById('moduleImagePreview');
+        p.querySelector('img').src = m.image_url;
+        p.style.display = 'flex';
+      }
+
+      document.getElementById('formTitleText').textContent = 'Edit Modul';
+      document.querySelector('#formTitle i').className = 'fas fa-edit';
+      document.getElementById('btnSubmitText').textContent = 'Simpan Perubahan';
+    }
+
+    /* ─── SAVE ─── */
+    async function saveModule(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('alertBox');
+      const btn = document.getElementById('btnSubmitForm');
+      const id = document.getElementById('moduleId').value;
+      const trackId = document.getElementById('trackIdInput').value;
+
+      if (!trackId) {
+        alertBox.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i> Pilih Jenis Modul / Pilar terlebih dahulu.</div>`;
+        return;
+      }
+
+      btn.disabled = true;
+      document.getElementById('btnSubmitText').textContent = 'Menyimpan...';
+
+      try {
+        const fileInput = document.getElementById('moduleImageInput');
+        let imageUrl = document.getElementById('moduleImageOld').value;
+
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const fn = `modul_${Date.now()}_${file.name.replace(/\s+/g,'-')}`;
+          const { error: upErr } = await supabase.storage.from('article-images').upload(fn, file);
+          if (upErr) throw upErr;
+          imageUrl = supabase.storage.from('article-images').getPublicUrl(fn).data.publicUrl;
+        }
+
+        const dbTrack = tracksData.find(t => String(t.id) === String(trackId));
+        const pilar = PILAR.find(p => dbTrack && (dbTrack.slug === p.slug || dbTrack.slug?.includes(p.slug.substring(0,5)) || dbTrack.title?.toLowerCase() === p.name.toLowerCase()));
+        const icon = pilar?.icon || dbTrack?.icon || '📚';
+
+        const title = document.getElementById('titleInput').value.trim();
+        const payload = {
+          track_id:    isNaN(trackId) ? null : parseInt(trackId),
+          title,
+          subtitle:    document.getElementById('subtitleInput').value.trim(),
+          order:       parseInt(document.getElementById('orderInput').value) || 1,
+          description: document.getElementById('descriptionInput').value.trim(),
+          content:     contentEditor ? contentEditor.getData() : '',
+          icon,
+          image_url:   imageUrl,
+          is_published: document.getElementById('isPublishedInput').value === 'true'
+        };
+
+        let result;
+        if (id) {
+          result = await supabase.from('modules').update(payload).eq('id', id);
+        } else {
+          payload.slug = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') + '-' + Date.now();
+          result = await supabase.from('modules').insert([payload]);
+        }
+
+        if (result.error) throw result.error;
+
+        alertBox.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i> Modul berhasil ${id ? 'diperbarui' : 'ditambahkan'}!</div>`;
+        setTimeout(() => { closeForm(); loadModules(); loadStats(); }, 700);
+        setTimeout(() => alertBox.innerHTML = '', 5000);
+
+      } catch (err) {
+        console.error(err);
+        alertBox.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i> Gagal: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        document.getElementById('btnSubmitText').textContent = id ? 'Simpan Perubahan' : 'Simpan Modul';
+      }
+    }
+
+    /* ─── DELETE ─── */
+    async function deleteModule(id, title) {
+      if (!confirm(`Hapus modul "${title}"?\n\nTindakan ini tidak bisa dibatalkan.`)) return;
+      const { error } = await supabase.from('modules').delete().eq('id', id);
+      const ab = document.getElementById('alertBox');
+      if (error) {
+        ab.innerHTML = `<div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i> Gagal: ${error.message}</div>`;
+      } else {
+        // Pastikan form tidak tertutup jika sedang terbuka
+        loadModules(); loadStats();
+      }
+    }
+
+    /* ─── UTILS ─── */
     async function handleLogout() { await supabase.auth.signOut(); window.location.href = 'login.html'; }
 
-    async function loadTracks() {
-      const { data } = await supabase.from('tracks').select('*');
-      if (data) {
-        document.getElementById('trackSelect').innerHTML = '<option value="">-- Pilih Track --</option>' + 
-          data.map(t => `<option value="${t.id}">${t.title}</option>`).join('');
-      }
+    function toggleSidebar() {
+      document.getElementById('adminSidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
     }
 
-    async function loadModules() {
-      const tbody = document.getElementById('tableBody');
-      const { data, error } = await supabase.from('modules').select('*, tracks(title)').order('created_at', { ascending: false });
-      if (error) { tbody.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${error.message}</td></tr>`; return; }
-      if (data.length === 0) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Belum ada modul.</td></tr>`; return; }
-      tbody.innerHTML = data.map(m => `
-        <tr>
-          <td><strong>${m.title}</strong><br><small style="color:#666;">/${m.slug}</small></td>
-          <td>${m.tracks?.title || '-'}</td>
-          <td>${m.is_published ? '<span style="color:green;">Terbit</span>' : '<span style="color:orange;">Draft</span>'}</td>
-          <td>
-            <button class="btn btn-edit" onclick="editModule(${m.id})"><i class="fas fa-edit"></i> Edit</button>
-            <button class="btn btn-danger" onclick="deleteModule(${m.id})"><i class="fas fa-trash"></i> Hapus</button>
-          </td>
-        </tr>`).join('');
+    function MyUploadPlugin(editor) {
+      editor.plugins.get('FileRepository').createUploadAdapter = loader => ({
+        upload: () => loader.file.then(file => new Promise(async (resolve, reject) => {
+          try {
+            const fn = `content_${Date.now()}_${file.name.replace(/\s+/g,'-')}`;
+            const { error } = await supabase.storage.from('article-images').upload(fn, file);
+            if (error) throw error;
+            resolve({ default: supabase.storage.from('article-images').getPublicUrl(fn).data.publicUrl });
+          } catch (err) { reject(err.message); }
+        }))
+      });
     }
-
-    async function editModule(id) {
-      const { data } = await supabase.from('modules').select('*').eq('id', id).single();
-      if (data) {
-        document.getElementById('moduleId').value = data.id;
-        document.getElementById('trackSelect').value = data.track_id;
-        document.getElementById('titleInput').value = data.title;
-        document.getElementById('slugInput').value = data.slug;
-        document.getElementById('orderInput').value = data.order || 1;
-        document.getElementById('descInput').value = data.description || '';
-        editorInstance.setData(data.content || '');
-        document.getElementById('btnSave').innerHTML = '<i class="fas fa-sync-alt"></i> Update Modul';
-        document.getElementById('btnCancel').style.display = 'inline-block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-
-    async function deleteModule(id) {
-      if(!confirm('Yakin hapus modul ini?')) return;
-      const { error } = await supabase.from('modules').delete().eq('id', id);
-      if (!error) loadModules(); else alert('Gagal hapus: ' + error.message);
-    }
-
-    document.getElementById('moduleForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('moduleId').value;
-      const payload = {
-        track_id: document.getElementById('trackSelect').value, title: document.getElementById('titleInput').value,
-        slug: document.getElementById('slugInput').value, order: document.getElementById('orderInput').value,
-        description: document.getElementById('descInput').value, content: editorInstance.getData(), is_published: true
-      };
-      const { error } = id ? await supabase.from('modules').update(payload).eq('id', id) : await supabase.from('modules').insert([payload]);
-      if (!error) { showAlert('success', '<i class="fas fa-check-circle"></i> Data berhasil disimpan!'); resetForm(); loadModules(); } 
-      else { showAlert('error', '<i class="fas fa-exclamation-circle"></i> Error: ' + error.message); }
-    });
-
-    function resetForm() { document.getElementById('moduleForm').reset(); document.getElementById('moduleId').value = ''; editorInstance.setData(''); document.getElementById('btnSave').innerHTML = '<i class="fas fa-save"></i> Simpan Modul'; document.getElementById('btnCancel').style.display = 'none'; }
-    function showAlert(type, msg) { const box = document.getElementById('alertBox'); box.className = `alert ${type}`; box.textContent = msg; setTimeout(() => { box.style.display = 'none'; }, 3000); }
   </script>
 </body>
 </html>
