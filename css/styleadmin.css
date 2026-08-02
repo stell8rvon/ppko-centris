@@ -921,6 +921,7 @@ a   { color: inherit; }
 .badge-entre    { background: #e2ece9; color: #2c5e43; border: 1px solid #cedcd6; }
 .badge-digital  { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
 .badge-sirkular { background: #efebe9; color: #4e342e; border: 1px solid #d7ccc8; }
+.badge-ttg { background: #e0f2f1; color: #00695c; border: 1px solid #b2dfdb; }
 
 /* ══ ALERTS ══ */
 .alert {

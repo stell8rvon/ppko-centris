@@ -8,7 +8,7 @@
         </a>
         <div class="nav-links">
           <a href="index.html" id="nav-home">Beranda</a>
-          <a href="modul.html" id="nav-modul">Modul KO AWIS</a>
+          <a href="modul.html" id="nav-modul">Program KO AWIS</a>
           <a href="luaran.html" id="nav-luaran">Luaran</a>
           <a href="informasi.html" id="nav-informasi">Galeri Kegiatan</a>
           <a href="tentang.html" id="nav-tentang">Tentang Kami</a>
@@ -22,7 +22,7 @@
     <!-- Mobile Menu Overlay (Desain Baru) -->
     <div class="mobile-nav-overlay" id="mobileMenu">
       <a href="index.html" class="mobile-nav-link" id="mob-home"><i class="fas fa-home"></i> Beranda</a>
-      <a href="modul.html" class="mobile-nav-link" id="mob-modul"><i class="fas fa-book"></i> Modul KO AWIS</a>
+      <a href="modul.html" class="mobile-nav-link" id="mob-modul"><i class="fas fa-book"></i>  Program KO AWIS</a>
       <a href="luaran.html" class="mobile-nav-link" id="mob-luaran"><i class="fas fa-trophy"></i> Luaran</a>
       <a href="informasi.html" class="mobile-nav-link" id="mob-informasi"><i class="fas fa-newspaper"></i>Galeri Kegiatan</a>
       <a href="tentang.html" class="mobile-nav-link" id="mob-tentang"><i class="fas fa-users"></i> Tentang Kami</a>

@@ -602,6 +602,7 @@ h1,h2,h3,h4,h5,h6, .playfair-strong, .section-article-title, .footer-logo {
 .card-entre   { --card-color: var(--brown-700); --card-bg: var(--brown-50); }
 .card-digital { --card-color: var(--brown-500); --card-bg: var(--brown-100); }
 .card-sirkular{ --card-color: var(--brown-400); --card-bg: var(--brown-50); }
+.card-ttg { --card-color: var(--brown-800); --card-bg: var(--brown-100); }
 
 /* ---- Feature Cards ---- */
 .features-grid {

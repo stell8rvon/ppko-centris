@@ -342,7 +342,7 @@ async function loadDynamicModuleCounts() {
       .eq('is_published', true);
       
     if (!countError && trackCounts) {
-      const counts = { hilir: 0, entrepreneur: 0, digital: 0, sirkular: 0 };
+      const counts = { hilir: 0, entrepreneur: 0, digital: 0, sirkular: 0, ttg: 0 };
       trackCounts.forEach(m => {
         const slug = m.tracks?.slug;
         if (slug && counts.hasOwnProperty(slug)) {
@@ -361,6 +361,9 @@ async function loadDynamicModuleCounts() {
       
       const sirkularEl = document.querySelector('.card-sirkular .module-lessons');
       if (sirkularEl) sirkularEl.innerHTML = `<i class="fas fa-book"></i> ${counts.sirkular} Modul Pembelajaran`;
+
+      const ttgEl = document.querySelector('.card-ttg .module-lessons');
+      if (ttgEl) ttgEl.innerHTML = `<i class="fas fa-book"></i> ${counts.ttg} Program`;
     }
   } catch (err) {
     console.error(err);
