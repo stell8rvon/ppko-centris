@@ -116,7 +116,24 @@
                             <p class="modul-desc">${modul.description}</p>
                             
                             <div style="margin-top: 2rem;">
-                                ${modul.content}
+                                ${(() => {
+                                    let txt = modul.content || '';
+                                    
+                                    // PDF
+                                    txt = txt.replace(/\[PDF\]([\s\S]*?)\[\/PDF\]/gi, (match, url) => {
+                                        let cleanUrl = url.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
+                                        return `<iframe src="${cleanUrl}" width="100%" height="700px" style="border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 1rem; margin-bottom: 2rem;"></iframe>`;
+                                    });
+
+                                    // Tombol
+                                    txt = txt.replace(/\[TOMBOL=([^\]]+)\]([\s\S]*?)\[\/TOMBOL\]/gi, (match, url, label) => {
+                                        let cleanUrl = url.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
+                                        let cleanLabel = label.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
+                                        return `<a href="${cleanUrl}" target="_blank" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-top: 1rem; margin-bottom: 1rem;"><i class="fas fa-cloud-download-alt"></i> ${cleanLabel}</a>`;
+                                    });
+
+                                    return txt;
+                                })()}
                             </div>
                         `;
                         

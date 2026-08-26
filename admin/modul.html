@@ -242,6 +242,7 @@
             <option value="digital">Digital</option>
             <option value="sirkular">Sirkular</option>
             <option value="ttg">TTG</option>
+            <option value="produk">Produk</option>
           </select>
           <select class="form-select filter-select" id="filterStatus" onchange="filterModules()">
             <option value="">Semua Status</option>
@@ -278,13 +279,13 @@
   </div>
 
   <script>
-    /* ─── 4 PILAR KO AWIS ─── */
     const PILAR = [
       { slug:'hilir',        name:'Hilir',        sub:'Pengolahan & Produksi',    icon:'🏭', badge:'badge-hilir'    },
       { slug:'entrepreneur', name:'Entrepreneur', sub:'Bisnis & Kewirausahaan',   icon:'💼', badge:'badge-entre'    },
       { slug:'digital',      name:'Digital',      sub:'Teknologi & Inovasi',      icon:'💻', badge:'badge-digital'  },
       { slug:'sirkular',     name:'Sirkular',     sub:'Ekosistem Berkelanjutan',  icon:'♻️', badge:'badge-sirkular' },
-      { slug:'ttg',          name:'TTG',          sub:'Teknologi Tepat Guna',     icon:'⚙️', badge:'badge-ttg'      }
+      { slug:'ttg',          name:'TTG',          sub:'Teknologi Tepat Guna',     icon:'⚙️', badge:'badge-ttg'      },
+      { slug:'produk', name:'Produk', sub:'Desain & Kemasan', icon:'🎨', badge:'badge-produk' }
     ];
 
     let contentEditor;
