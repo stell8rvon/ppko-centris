@@ -1,155 +1,95 @@
 <!doctype html>
 <html lang="id">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Modul — KO AWIS</title>
+    <title>Modul KO AWIS</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link rel="icon" type="image/png" href="../assets/logo-koawis-brand.png" style="height: 165px; width: auto;">
-    <!-- Icons -->
+    <link rel="icon" type="image/png" href="../assets/logo-koawis-brand.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Tambahkan Library Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
-    <!-- Navbar injected at runtime (no login/register) -->
+    <script src="../js/include-navbar.js"></script>
 
-    <main class="page-isimodul" style="max-width:1200px;margin:2rem auto;padding:0 1rem;">
-        <div class="breadcrumb">
-            <a href="index.html"><i class="fas fa-home"></i> Beranda</a>
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M9 18l6-6-6-6" />
-            </svg>
-            <a href="modul.html"> Program KO AWIS</a>
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M9 18l6-6-6-6" />
-            </svg>
-            <a href="modullist.html">Daftar Modul</a>
+    <main class="page-isimodul" style="max-width:900px; margin: 8rem auto 4rem; padding:0 1.5rem; min-height: 60vh;">
+        
+        <div class="breadcrumb" style="display:flex; gap:0.5rem; font-size:0.85rem; color:var(--text-light); margin-bottom:2rem; align-items:center;">
+            <a href="index.html" style="cursor:pointer;"><i class="fas fa-home"></i> Beranda</a>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            <a href="modul.html">Program KO AWIS</a>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            <a href="modullist.html" id="breadcrumbTrack" style="font-weight: 600; color: var(--brown-600);">Daftar Modul</a>
         </div>
 
-        <div class="isi-modul-layout" style="margin-top:1rem;display:flex;gap:2rem;align-items:flex-start;">
-            <!-- Sidebar -->
-            <aside class="sidebar-modul" id="sidebarModul" style="width:260px;">
-                <div class="sidebar-title">DAFTAR MODUL</div>
-                <div class="sidebar-subtitle" id="sidebar-track-name">KO AWIS</div>
-                <div class="fs-08 mb-075 text-muted">Progres: <span id="sidebar-progress-text">0% Selesai</span></div>
-                <div class="sidebar-progress-bar">
-                    <div class="sidebar-progress-fill" id="sidebarProgressFill" style="width:0%"></div>
-                </div>
-                <nav class="sidebar-nav" id="sidebarNav"></nav>
-            </aside>
-
-            <!-- Main Content -->
-            <div style="flex:1;display:flex;flex-direction:column;">
-                <div class="modul-content" id="modulContent">
-                    <!-- Populated by app.js -->
-                </div>
-
-                <div class="modul-navigation" style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:flex-end;">
-                    <button class="btn-prev" id="btnPrev" onclick="navigateModul(-1)" style="display:none;">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path d="M15 18l-6-6 6-6" />
-                        </svg>
-                        Kembali
-                    </button>
-                    <button class="btn-next" id="btnNext" onclick="navigateModul(1)">
-                        Selesaikan & Lanjutkan
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path d="M9 18l6-6-6-6" />
-                        </svg>
-                    </button>
-                </div>
+        <div class="modul-content" id="modulContent" style="background: var(--white); padding: 3rem; border-radius: var(--radius-lg); border: 1px solid var(--cream-dark); box-shadow: var(--shadow-sm);">
+            <div style="text-align:center; padding: 4rem 0;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size:2rem; color:var(--brown-500); margin-bottom:1rem;"></i>
+                <p>Memuat materi...</p>
             </div>
         </div>
 
-        <div class="progress-bar-bottom" style="margin-top:1.5rem;">
-            <div class="progress-bar-fill-bottom" id="progressBarBottom" style="width:0%"></div>
+        <div style="margin-top: 2rem; text-align:center;">
+            <button onclick="history.back()" style="background:var(--brown-100); color:var(--brown-800); border:1px solid var(--brown-300); padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-family:'Poppins', sans-serif; transition:all 0.3s ease;">
+                <i class="fas fa-arrow-left"></i> Kembali ke Daftar Modul
+            </button>
         </div>
     </main>
 
-    <script src="../js/include-navbar.js"></script>
     <script src="../js/include-footer.js"></script>
-    <script src="../js/supabase-client.js"></script> <!-- Load Client Config -->
-    <script src="../js/app.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(location.search);
-            const modulId = params.get('id'); // Ambil ID modul dari URL
+            const modulId = params.get('id');
 
             if (modulId) {
                 try {
-                    // GANTI: Fetch PHP lama dihapus, ganti dengan Supabase Query
-                    // const response = await fetch(`../api/modules/get.php?id=${modulId}`);
-                    
-                    // Query ke Supabase: Select modules dan join ke tracks
-                    const { data: modul, error } = await supabase
-                        .from('modules')
-                        .select(`
-                            *,
-                            tracks ( title, slug )
-                        `)
-                        .eq('id', modulId)
-                        .single();
-
+                    const { data: modul, error } = await supabase.from('modules').select(`*, tracks ( title, slug )`).eq('id', modulId).single();
                     if (error) throw error;
-
+                    
                     if (modul) {
+                        document.title = modul.title + " - KO AWIS";
                         
-                        // Update Judul di Sidebar
-                        document.getElementById('sidebar-track-name').textContent = modul.tracks.title;
+                        const breadcrumbTrack = document.getElementById('breadcrumbTrack');
+                        breadcrumbTrack.href = `modullist.html?track=${modul.tracks.slug}`;
+                        breadcrumbTrack.textContent = modul.tracks.title;
+
+                        // PROSES PEMBERSIHAN KODE AJAIB (Super Aman!)
+                        let processedContent = modul.content || '';
                         
-                        // Tampilkan isi Konten HTML yang dibuat dari Admin ke div modulContent
-                        const contentDiv = document.getElementById('modulContent');
-                        contentDiv.innerHTML = `
-                            <div class="modul-breadcrumb">
-                                <a href="modul.html">Program KO AWIS</a>
-                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-                                <a href="modullist.html?track=${modul.tracks.slug}">${modul.tracks.title}</a>
-                            </div>
-                            
-                            <h1>${modul.title}</h1>
-                            <p class="modul-desc">${modul.description}</p>
-                            
-                            <div style="margin-top: 2rem;">
-                                ${(() => {
-                                    let txt = modul.content || '';
-                                    
-                                    // PDF
-                                    txt = txt.replace(/\[PDF\]([\s\S]*?)\[\/PDF\]/gi, (match, url) => {
-                                        let cleanUrl = url.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
-                                        return `<iframe src="${cleanUrl}" width="100%" height="700px" style="border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 1rem; margin-bottom: 2rem;"></iframe>`;
-                                    });
+                        processedContent = processedContent.replace(/\[PDF\]([\s\S]*?)\[\/PDF\]/gi, (match, url) => {
+                            let cleanUrl = url.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
+                            return `<iframe src="${cleanUrl}" width="100%" height="800px" style="border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 1rem; margin-bottom: 2rem;"></iframe>`;
+                        });
 
-                                    // Tombol
-                                    txt = txt.replace(/\[TOMBOL=([^\]]+)\]([\s\S]*?)\[\/TOMBOL\]/gi, (match, url, label) => {
-                                        let cleanUrl = url.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
-                                        let cleanLabel = label.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
-                                        return `<a href="${cleanUrl}" target="_blank" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-top: 1rem; margin-bottom: 1rem;"><i class="fas fa-cloud-download-alt"></i> ${cleanLabel}</a>`;
-                                    });
+                        processedContent = processedContent.replace(/\[TOMBOL=([^\]]+)\]([\s\S]*?)\[\/TOMBOL\]/gi, (match, url, label) => {
+                            let cleanUrl = url.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
+                            let cleanLabel = label.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
+                            return `<a href="${cleanUrl}" target="_blank" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-top: 1rem; margin-bottom: 1rem;"><i class="fas fa-cloud-download-alt"></i> ${cleanLabel}</a>`;
+                        });
 
-                                    return txt;
-                                })()}
+                        // TAMPILKAN KE LAYAR
+                        document.getElementById('modulContent').innerHTML = `
+                            <span style="background:var(--brown-800); color:white; padding:4px 12px; border-radius:50px; font-size:0.75rem; font-weight:bold; text-transform:uppercase; display:inline-block; margin-bottom:1rem;">
+                                ${modul.tracks.title}
+                            </span>
+                            <h1 style="font-family: 'Poppins', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--brown-900); line-height: 1.3; margin-bottom: 1rem;">${modul.title}</h1>
+                            <p style="font-size: 1.05rem; color: var(--text-light); margin-bottom: 2rem; border-bottom: 1px solid var(--cream-dark); padding-bottom: 1.5rem;">${modul.description || ''}</p>
+                            
+                            <div style="margin-top: 2rem; font-size: 1.05rem; line-height: 1.8; color: var(--text-mid);">
+                                ${processedContent}
                             </div>
                         `;
-                        
-                        // Sembunyikan navigasi default app.js sementara waktu
-                        document.getElementById('btnPrev').style.display = 'none';
-                        document.getElementById('btnNext').style.display = 'none';
                     }
                 } catch (e) {
-                    console.error(e);
-                    document.getElementById('modulContent').innerHTML = "<p>Gagal memuat materi. Pastikan koneksi internet lancar.</p>";
+                    document.getElementById('modulContent').innerHTML = "<p style='text-align:center; color:red;'>Gagal memuat materi.</p>";
                 }
             } else {
-                document.getElementById('modulContent').innerHTML = "<p>Modul tidak ditemukan.</p>";
+                document.getElementById('modulContent').innerHTML = "<p style='text-align:center;'>Modul tidak ditemukan.</p>";
             }
         });
     </script>
 </body>
-
 </html>

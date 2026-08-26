@@ -54,15 +54,16 @@
   // 4. Tandai Menu Aktif Otomatis
   const path = location.pathname;
   const page = path.split('/').pop() || 'index.html';
-
+  
   const setActive = (id) => {
     document.getElementById('nav-' + id)?.classList.add('active');
     document.getElementById('mob-' + id)?.classList.add('active');
   };
 
-  if (page.includes('modul') || page.includes('isimodul')) setActive('modul');
+  // Logika deteksi halaman yang sudah diperbaiki
+  if (page.includes('modul') || page.includes('isimodul') || page.includes('modullist')) setActive('modul');
   else if (page.includes('luaran')) setActive('luaran');
-  else if (page.includes('informasi')) setActive('informasi');
+  else if (page.includes('informasi') || page.includes('isiartikel')) setActive('informasi');
   else if (page.includes('tentang')) setActive('tentang');
   else setActive('home');
 
