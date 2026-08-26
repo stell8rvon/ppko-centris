@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Baca Artikel - KO AWIS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/png" href="../assets/logo-koawis-brand.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <script src="../js/include-navbar.js"></script>
+
+    <!-- Konten Utama -->
+    <main style="max-width:800px; margin: 8rem auto 4rem; padding: 0 1.5rem; min-height: 60vh;">
+        <!-- Breadcrumb / Navigasi Atas -->
+        <div class="breadcrumb" style="display:flex; gap:0.5rem; font-size:0.85rem; color:var(--text-light); margin-bottom:2rem; align-items:center;">
+            <a href="index.html" style="cursor:pointer;"><i class="fas fa-home"></i> Beranda</a>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            <a href="informasi.html" style="cursor:pointer;">Galeri Kegiatan</a>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+            <span style="color:var(--brown-600); font-weight:600;">Baca Artikel</span>
+        </div>
+
+        <!-- Tempat Artikel Ditampilkan -->
+        <div id="articleContent">
+            <div style="text-align:center; padding: 4rem 0;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size:2rem; color:var(--brown-500); margin-bottom:1rem;"></i>
+                <p>Memuat artikel...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <script src="../js/include-footer.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    
+    <!-- Script Pengambil Data Artikel -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(location.search);
+            const articleId = params.get('id');
+            const contentDiv = document.getElementById('articleContent');
+
+            if (articleId) {
+                try {
+                    // Tarik data artikel dari tabel 'articles' di Supabase
+                    const { data: article, error } = await supabase
+                        .from('articles')
+                        .select('*')
+                        .eq('id', articleId)
+                        .single();
+
+                    if (error) throw error;
+
+                    if (article) {
+                        // Ganti judul tab browser
+                        document.title = article.title + " - KO AWIS";
+                        
+                        // Format Tanggal
+                        const dateObj = new Date(article.created_at);
+                        const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                        // Tampilkan HTML Artikel
+                        contentDiv.innerHTML = `
+                            <div style="margin-bottom: 2rem;">
+                                <span style="background:var(--brown-800); color:white; padding:4px 12px; border-radius:50px; font-size:0.75rem; font-weight:bold; text-transform:uppercase; display:inline-block; margin-bottom:1rem;">
+                                    ${article.category}
+                                </span>
+                                <h1 style="font-family:'Poppins', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--brown-900); line-height: 1.3; margin-bottom: 1rem;">
+                                    ${article.title}
+                                </h1>
+                                <div style="display:flex; gap:1.5rem; color:var(--text-light); font-size:0.9rem; align-items:center; border-bottom: 1px solid var(--cream-dark); padding-bottom: 1rem; flex-wrap:wrap;">
+                                    <span><i class="far fa-calendar-alt"></i> ${dateStr}</span>
+                                    <span><i class="fas fa-user"></i> ${article.author || 'Tim KO AWIS'}</span>
+                                    <span><i class="far fa-clock"></i> ${article.read_time || 5} min baca</span>
+                                </div>
+                            </div>
+
+                            ${article.image_url ? `<img src="${article.image_url}" alt="${article.title}" style="width:100%; max-height:450px; object-fit:cover; border-radius:16px; margin-bottom:2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">` : ''}
+
+                            <div style="font-size: 1.05rem; line-height: 1.8; color: var(--text-mid);">
+                                <!-- Jika 'content' kosong, tampilkan 'excerpt' sebagai cadangan -->
+                                ${article.content || `<p>${article.excerpt}</p>`}
+                            </div>
+
+                            <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--cream-dark); text-align:center;">
+                                <button onclick="location.href='informasi.html'" style="background:var(--brown-100); color:var(--brown-800); border:1px solid var(--brown-300); padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-family:'Poppins', sans-serif; transition:all 0.3s ease;">
+                                    <i class="fas fa-arrow-left"></i> Kembali ke Galeri
+                                </button>
+                            </div>
+                        `;
+                    }
+                } catch (e) {
+                    console.error(e);
+                    contentDiv.innerHTML = `
+                        <div style="text-align:center; padding:3rem; background:var(--brown-50); border-radius:12px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size:2rem; color:#c62828; margin-bottom:1rem;"></i>
+                            <p style="color:var(--text-mid);">Gagal memuat artikel. Pastikan koneksi internet lancar atau artikel telah dihapus.</p>
+                        </div>`;
+                }
+            } else {
+                contentDiv.innerHTML = "<p style='text-align:center;'>Artikel tidak ditemukan.</p>";
+            }
+        });
+    </script>
+</body>
+</html>

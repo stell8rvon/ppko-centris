@@ -238,7 +238,7 @@ async function renderArticles(filter) {
     }
 
     grid.innerHTML = articles.map(a => `
-      <div class="article-card" onclick="showToast('Membuka artikel: ${a.title.substring(0,30)}...')">
+      <div class="article-card" onclick="location.href='isiartikel.html?id=${a.id}'">
         <div class="article-img">
           <img src="${a.image_url || 'https://via.placeholder.com/400x200'}" alt="${a.title}" loading="lazy">
           <span class="article-cat-badge">${a.category}</span>

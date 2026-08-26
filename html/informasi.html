@@ -80,7 +80,7 @@
       }
       
       grid.innerHTML = articles.map(a => `
-        <div class="article-card" onclick="alert('Membuka artikel: ${a.title.substring(0,30)}...')">
+        <div class="article-card" onclick="location.href='isiartikel.html?id=${a.id}'">
           <div class="article-img"><img src="${a.image_url || 'https://via.placeholder.com/400x200'}" alt="${a.title}" loading="lazy"><span class="article-cat-badge">${a.category}</span></div>
           <div class="article-body">
             <div class="article-meta"><span><i class="far fa-calendar-alt"></i> ${new Date(a.created_at).toLocaleDateString('id-ID')}</span><span><i class="far fa-clock"></i> ${a.read_time || 5} min baca</span></div>
