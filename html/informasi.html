@@ -59,44 +59,129 @@
   <script src="../js/include-navbar.js"></script>
   <script src="../js/include-footer.js"></script>
   <script src="../js/site-data.js"></script>
-  <script>
-    async function renderArticles(filter) {
-      const grid = document.getElementById('articlesGrid');
-      grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Memuat artikel...</p>';
-      
-      try {
-        let query = supabase.from('articles').select('*').eq('is_published', true);
-        if (filter !== 'semua') {
-          query = query.eq('category', filter);
+    <script>
+        // State Manajemen Pagination
+        let currentArticles = [];
+        let currentPage = 1;
+        const itemsPerPage = 6; // Maksimal 6 artikel per halaman (Bisa kamu ganti angkanya)
+
+        async function fetchArticles(filter) {
+            const grid = document.getElementById('articlesGrid');
+            grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Memuat artikel...</p>';
+            
+            try {
+                // Ambil semua artikel yang sudah terbit, diurutkan dari yang terbaru ke terlama
+                let query = supabase.from('articles').select('*').eq('is_published', true).order('created_at', { ascending: false });
+                
+                if (filter !== 'semua') {
+                    query = query.eq('category', filter);
+                }
+                
+                const { data: articles, error } = await query;
+                if (error) throw error;
+
+                // Simpan ke state global dan reset ke halaman 1
+                currentArticles = articles || [];
+                currentPage = 1; 
+                
+                renderCurrentPage();
+            } catch (e) {
+                console.error(e);
+                grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Gagal memuat artikel.</p>';
+            }
         }
-        
-        const { data: articles, error } = await query;
-        
-        if (error) throw error;
-        
-        if (!articles || articles.length === 0) {
-        grid.innerHTML = `<div class="no-articles" style="grid-column:1/-1;text-align:center;padding:3rem;"><div style="font-size:3rem;margin-bottom:1rem;color:#ccc;"><i class="fas fa-newspaper"></i></div><p class="text-muted">Belum ada artikel untuk kategori ini.</p></div>`;
-        return;
-      }
-      
-      grid.innerHTML = articles.map(a => `
-        <div class="article-card" onclick="location.href='isiartikel.html?id=${a.id}'">
-          <div class="article-img"><img src="${a.image_url || 'https://via.placeholder.com/400x200'}" alt="${a.title}" loading="lazy"><span class="article-cat-badge">${a.category}</span></div>
-          <div class="article-body">
-            <div class="article-meta"><span><i class="far fa-calendar-alt"></i> ${new Date(a.created_at).toLocaleDateString('id-ID')}</span><span><i class="far fa-clock"></i> ${a.read_time || 5} min baca</span></div>
-            <div class="article-title">${a.title}</div>
-            <p class="article-excerpt">${a.excerpt}</p>
-            <div class="article-footer"><div class="article-author"><div class="author-avatar">${(a.author || 'A').charAt(0)}</div><span>${a.author || 'Admin'}</span></div><span class="article-link">Selengkapnya <i class="fas fa-chevron-right" style="font-size:0.8em;"></i></span></div>
-          </div>
-        </div>
-      `).join('');
-      } catch (e) {
-        console.error(e);
-        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">Gagal memuat artikel.</p>';
-      }
-    }
-    function filterArticles(cat, btn) { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); if (btn) btn.classList.add('active'); renderArticles(cat); }
-    document.addEventListener('DOMContentLoaded', () => { renderArticles('semua'); });
-  </script>
+
+        function renderCurrentPage() {
+            const grid = document.getElementById('articlesGrid');
+            
+            if (currentArticles.length === 0) {
+                grid.innerHTML = `<div class="no-articles" style="grid-column:1/-1;text-align:center;padding:3rem;"><div style="font-size:3rem;margin-bottom:1rem;color:#ccc;"><i class="fas fa-newspaper"></i></div><p class="text-muted">Belum ada artikel untuk kategori ini.</p></div>`;
+                updatePaginationControls();
+                return;
+            }
+
+            // Hitung artikel yang harus tampil di halaman saat ini
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = currentArticles.slice(startIndex, endIndex);
+
+            grid.innerHTML = pageData.map(a => `
+                <div class="article-card" onclick="location.href='isiartikel.html?id=${a.id}'">
+                    <div class="article-img">
+                        <img src="${a.image_url || 'https://via.placeholder.com/400x200'}" alt="${a.title}" loading="lazy">
+                        <span class="article-cat-badge">${a.category}</span>
+                    </div>
+                    <div class="article-body">
+                        <div class="article-meta">
+                            <span><i class="far fa-calendar-alt"></i> ${new Date(a.created_at).toLocaleDateString('id-ID')}</span>
+                            <span><i class="far fa-clock"></i> ${a.read_time || 5} min baca</span>
+                        </div>
+                        <div class="article-title">${a.title}</div>
+                        <p class="article-excerpt">${a.excerpt || ''}</p>
+                        <div class="article-footer">
+                            <div class="article-author">
+                                <div class="author-avatar">${(a.author || 'A').charAt(0)}</div>
+                                <span>${a.author || 'Tim KO AWIS'}</span>
+                            </div>
+                            <span class="article-link">Selengkapnya <i class="fas fa-chevron-right" style="font-size:0.8em;"></i></span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updatePaginationControls();
+        }
+
+        function updatePaginationControls() {
+            const paginationContainer = document.querySelector('.pagination');
+            if(!paginationContainer) return;
+
+            // Hitung total halaman yang dibutuhkan
+            const totalPages = Math.ceil(currentArticles.length / itemsPerPage);
+
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none'; // Sembunyikan angka kalau artikelnya sedikit (<= 1 halaman)
+                return;
+            }
+            
+            paginationContainer.style.display = 'flex'; // Munculkan kembali jika > 1 halaman
+            let html = '';
+            
+            // Tombol Prev (Kiri)
+            const prevDisabled = currentPage === 1 ? 'opacity: 0.5; pointer-events: none;' : 'cursor: pointer;';
+            html += `<div class="page-arrow" style="${prevDisabled}" onclick="goToPage(${currentPage - 1})"><i class="fas fa-chevron-left"></i></div>`;
+
+            // Cetak Angka Halaman secara Dinamis
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<div class="page-num active" style="cursor:default;">${i}</div>`;
+                } else {
+                    html += `<div class="page-num" style="cursor:pointer;" onclick="goToPage(${i})">${i}</div>`;
+                }
+            }
+
+            // Tombol Next (Kanan)
+            const nextDisabled = currentPage === totalPages ? 'opacity: 0.5; pointer-events: none;' : 'cursor: pointer;';
+            html += `<div class="page-arrow" style="${nextDisabled}" onclick="goToPage(${currentPage + 1})"><i class="fas fa-chevron-right"></i></div>`;
+
+            // Masukkan HTML dinamisnya ke layar
+            paginationContainer.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderCurrentPage();
+            // Otomatis scroll ke atas list artikel biar pengunjung nggak nyasar di bawah
+            document.querySelector('.category-tabs').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function filterArticles(cat, btn) { 
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+            if (btn) btn.classList.add('active'); 
+            fetchArticles(cat); 
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { fetchArticles('semua'); });
+    </script>
 </body>
 </html>
