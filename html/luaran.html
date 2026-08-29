@@ -141,6 +141,23 @@
       .bento-grid { grid-template-columns: 1fr; }
       .impact-stats { flex-direction: column; gap: 1.5rem; padding: 2rem; }
     }
+
+    /* --- Grid Khusus 8 Produk --- */
+    .grid-produk-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+    
+    /* Agar di Tablet jadi 2 kolom */
+    @media (max-width: 900px) {
+      .grid-produk-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    /* Agar di HP layarnya pas jadi 1 kolom */
+    @media (max-width: 600px) {
+      .grid-produk-4 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -280,7 +297,7 @@
         </div>
 
         <!-- 8 PRODUK FISIK -->
-          <div class="articles-grid" style="margin-top: 4rem; margin-bottom: 4rem;">
+          <div class="grid-produk-4" style="margin-top: 4rem; margin-bottom: 4rem;">
             
             <!-- 1. Awis Paste -->
             <div class="article-card reveal">
