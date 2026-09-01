@@ -413,6 +413,7 @@ h1,h2,h3,h4,h5,h6, .playfair-strong, .section-article-title, .footer-logo {
 .hero-content {
   position: relative; z-index: 2; text-align: center;
   padding: 2rem; max-width: 800px;
+  margin-top: 5rem;
   animation: fadeUp 0.8s ease 0.2s both;
 }
 .hero-tag {
@@ -1166,7 +1167,7 @@ modul-content h1 {
 }
 .about-hero-bg {
   position: absolute; inset: 0;
-  background: url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80') center/cover;
+  background: url('../assets/foto-tim.jpg') center/cover;
 }
 .about-hero-overlay {
   position: absolute; inset: 0;
