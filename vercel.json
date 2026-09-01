@@ -11,6 +11,7 @@
     { "source": "/isimodul.html", "destination": "/html/isimodul.html" },
     { "source": "/informasi.html", "destination": "/html/informasi.html" },
     { "source": "/isiartikel.html", "destination": "/html/isiartikel.html" },
+    { "source": "/keuangan.html", "destination": "/html/keuangan.html" },
     { "source": "/tentang.html", "destination": "/html/tentang.html" },
     { "source": "/luaran.html", "destination": "/html/luaran.html" },
     { "source": "/admin", "destination": "/admin/index.html" },
