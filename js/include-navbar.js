@@ -11,7 +11,7 @@
           <a href="modul.html" id="nav-modul">Program KO AWIS</a>
           <a href="luaran.html" id="nav-luaran">Luaran</a>
           <a href="informasi.html" id="nav-informasi">Galeri Kegiatan</a>
-          <a href="keuangan.html" id="nav-keuangan">Keuangan</a>
+          <a href="keuangan.html" id="nav-keuangan">KaWis</a>
           <a href="tentang.html" id="nav-tentang">Tentang Kami</a>
         </div>
         <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -25,7 +25,7 @@
       <a href="modul.html" class="mobile-nav-link" id="mob-modul"><i class="fas fa-book"></i> Program KO AWIS</a>
       <a href="luaran.html" class="mobile-nav-link" id="mob-luaran"><i class="fas fa-trophy"></i> Luaran</a>
       <a href="informasi.html" class="mobile-nav-link" id="mob-informasi"><i class="fas fa-newspaper"></i> Galeri Kegiatan</a>
-      <a href="keuangan.html" class="mobile-nav-link" id="mob-keuangan"><i class="fas fa-chart-line"></i> Keuangan</a>
+      <a href="keuangan.html" class="mobile-nav-link" id="mob-keuangan"><i class="fas fa-chart-line"></i> KaWis</a>
       <a href="tentang.html" class="mobile-nav-link" id="mob-tentang"><i class="fas fa-users"></i> Tentang Kami</a>
     </div>
   `;
