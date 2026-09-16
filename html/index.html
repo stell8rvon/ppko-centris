@@ -32,6 +32,123 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
     </div>
   </section>
 
+  <style>
+    /* Styling khusus untuk Akses Cepat agar ramah orang tua/HP */
+    .quick-access-section {
+      background-color: var(--white);
+      padding: 3rem 1.5rem;
+      border-bottom: 1px solid var(--cream-dark);
+      position: relative;
+      z-index: 10;
+      margin-top: -2rem; /* Menarik sedikit ke atas agar nyambung dengan Hero */
+      border-radius: 30px 30px 0 0;
+    }
+    .qa-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .qa-title {
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--brown-900);
+      margin-bottom: 1.5rem;
+      font-family: 'Poppins', sans-serif;
+    }
+    .qa-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .qa-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--cream);
+      padding: 1.5rem 1rem;
+      border-radius: 20px;
+      text-decoration: none;
+      color: var(--brown-800);
+      transition: all 0.3s ease;
+      border: 1px solid var(--cream-dark);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+    .qa-btn:hover {
+      background: var(--brown-100);
+      transform: translateY(-5px);
+      border-color: var(--brown-300);
+      box-shadow: 0 8px 15px rgba(123, 69, 32, 0.1);
+    }
+    .qa-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--brown-600);
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .qa-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.3;
+    }
+
+    /* Responsif untuk HP (Layar Kecil) */
+    @media (max-width: 768px) {
+      .qa-grid {
+        grid-template-columns: repeat(2, 1fr); /* Menjadi 2 kotak berjejer di HP */
+        gap: 1rem;
+      }
+      .quick-access-section {
+        padding: 2.5rem 1rem;
+      }
+      .qa-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+      }
+      .qa-text {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+
+  <div class="quick-access-section">
+    <div class="qa-container">
+      <h2 class="qa-title">Menu Akses Cepat</h2>
+      <div class="qa-grid">
+        <!-- Tombol 1 -->
+        <a href="modul.html" class="qa-btn">
+          <div class="qa-icon"><i class="fas fa-book-open"></i></div>
+          <span class="qa-text">Mulai<br>Belajar</span>
+        </a>
+        <!-- Tombol 2 -->
+        <a href="informasi.html" class="qa-btn">
+          <div class="qa-icon"><i class="fas fa-images"></i></div>
+          <span class="qa-text">Galeri<br>Kegiatan</span>
+        </a>
+        <!-- Tombol 3 -->
+        <a href="luaran.html" class="qa-btn">
+          <div class="qa-icon"><i class="fas fa-award"></i></div>
+          <span class="qa-text">Produk &<br>Karya</span>
+        </a>
+        <!-- Tombol 4 -->
+        <a href="tentang.html" class="qa-btn">
+          <div class="qa-icon"><i class="fas fa-users"></i></div>
+          <span class="qa-text">Kontak<br>Tim Kami</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- =============================== -->
   <!-- PAGE: HOME / BERANDA            -->
   <!-- =============================== -->
