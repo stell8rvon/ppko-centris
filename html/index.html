@@ -30,13 +30,30 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
         <button class="btn-outline" onclick="location.href='tentang.html'">Tentang Kami</button>
       </div>
     </div>
+    <div class="hero-scroll" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+      </svg>
+    </div>
   </section>
 
   <style>
+    /* Styling Lengkungan di Bawah Hero */
+    .hero {
+      position: relative;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 60px;
+      background: var(--cream);
+      clip-path: ellipse(55% 100% at 50% 100%);
+      z-index: 5;
+    }
+    
     /* Spasi lebih lega & background menyatu dengan halaman */
     .quick-access-section {
       background-color: var(--cream);
-      padding: 4rem 1.5rem 2rem; 
+      padding: 3rem 1.5rem 2rem; 
       position: relative;
       z-index: 10;
     }
@@ -74,10 +91,9 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
       color: var(--brown-900);
       transition: all 0.3s ease;
       border: 2px solid transparent;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05); /* Bayangan lembut */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     }
     
-    /* Efek saat Disentuh/Diarahkan */
     .qa-btn:hover {
       transform: translateY(-8px);
       border-color: var(--brown-300);
@@ -99,7 +115,6 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
       transition: all 0.3s ease;
     }
     
-    /* Ikon berubah mencolok saat card di-hover */
     .qa-btn:hover .qa-icon {
       background: linear-gradient(135deg, var(--brown-600), var(--brown-800));
       color: var(--white);
@@ -120,16 +135,11 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
     
     /* Responsif untuk HP */
     @media (max-width: 600px) {
-      .quick-access-section { padding: 3rem 1rem 1rem; }
-      .qa-grid { 
-        grid-template-columns: repeat(2, 1fr); /* 2 berjejer di HP */
-        gap: 1rem; 
-      }
+      .quick-access-section { padding: 2rem 1rem 1rem; }
+      .qa-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
       .qa-btn { padding: 1.5rem 0.5rem; border-radius: 20px; }
       .qa-icon { width: 55px; height: 55px; font-size: 1.5rem; margin-bottom: 1rem; }
       .qa-text { font-size: 0.85rem; }
-      
-      /* Membuat tombol ke-5 (Tim PPKO) berada di tengah bawah saat di HP */
       .qa-btn:last-child { grid-column: span 2; } 
     }
   </style>
@@ -154,13 +164,13 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
         <!-- Tombol 3 -->
         <a href="luaran.html" class="qa-btn">
           <div class="qa-icon"><i class="fas fa-award"></i></div>
-          <span class="qa-text">Luaran &<br>Produk</span>
+          <span class="qa-text">Luaran &<br>Karya Fisik</span>
         </a>
 
-        <!-- Tombol 4 (Baru: KaWis) -->
-        <a href="keuangan.html" class="qa-btn">
-          <div class="qa-icon"><i class="fas fa-file-excel"></i></div>
-          <span class="qa-text">Data<br>KaWis</span>
+        <!-- Tombol 4: Diganti jadi Aset & Desain (Produk) -->
+        <a href="modul.html" class="qa-btn">
+          <div class="qa-icon"><i class="fas fa-cogs"></i></div>
+          <span class="qa-text">Mesin TTG &<br>Produk Aset</span>
         </a>
         
         <!-- Tombol 5 -->
