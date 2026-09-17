@@ -1167,7 +1167,7 @@ modul-content h1 {
 }
 .about-hero-bg {
   position: absolute; inset: 0;
-  background: url('../assets/foto-tim.JPG') center/cover;
+  background: url('../assets/foto-tim.JPG') 80% center/cover no-repeat !important;
 }
 .about-hero-overlay {
   position: absolute; inset: 0;
@@ -1285,11 +1285,9 @@ modul-content h1 {
   border-radius: var(--radius-lg);
   padding: 1rem;
   transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
-  cursor: pointer;
 }
 
 .team-card:hover {
-  transform: translateY(-10px);
   box-shadow: 0 18px 32px rgba(107, 74, 47, 0.14);
   border-color: rgba(154, 95, 53, 0.2);
 }
@@ -1303,7 +1301,7 @@ modul-content h1 {
 }
 
 .lead-card:hover {
-  transform: translateY(-10px) scale(0.95);
+  transform: scale(0.95); 
   box-shadow: 0 18px 32px rgba(107, 74, 47, 0.14);
   border-color: rgba(154, 95, 53, 0.2);
 }
@@ -1315,7 +1313,7 @@ modul-content h1 {
 }
 
 .lead-card--featured:hover {
-  transform: translateY(-10px) scale(1.06);
+  transform: scale(1.06); 
   box-shadow: 0 18px 36px rgba(154, 95, 53, 0.22);
 }
 

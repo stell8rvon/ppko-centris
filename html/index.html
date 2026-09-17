@@ -30,32 +30,33 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
         <button class="btn-outline" onclick="location.href='tentang.html'">Tentang Kami</button>
       </div>
     </div>
-    <div class="hero-scroll" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
-      </svg>
-    </div>
   </section>
 
   <style>
-    /* Styling Lengkungan di Bawah Hero */
+    /* --- 1. LENGKUNGAN HERO --- */
     .hero {
       position: relative;
     }
     .hero::after {
       content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
-      height: 60px;
-      background: var(--cream);
+      height: 80px;
+      /* Warna putih agar menyatu mulus dengan section Akses Cepat di bawahnya */
+      background: var(--white); 
       clip-path: ellipse(55% 100% at 50% 100%);
-      z-index: 5;
+      z-index: 1;
     }
-    
-    /* Spasi lebih lega & background menyatu dengan halaman */
+    .hero-content {
+      z-index: 10 !important;
+      margin-bottom: 6rem !important; /* Mendorong tombol ke atas biar aman dari area putih */
+    }
+
+    /* --- 2. QUICK ACCESS BUTTONS (FORMAL) --- */
     .quick-access-section {
-      background-color: var(--cream);
-      padding: 3rem 1.5rem 2rem; 
+      background-color: var(--white); 
+      padding: 2rem 1.5rem 2rem; 
       position: relative;
       z-index: 10;
+      border-bottom: 1px solid var(--cream-dark);
     }
     .qa-container {
       max-width: 1100px;
@@ -63,21 +64,19 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
     }
     .qa-title {
       text-align: center;
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 700;
-      color: var(--brown-900);
+      color: var(--brown-600);
       margin-bottom: 2rem;
       font-family: 'Poppins', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
     }
-    
-    /* Grid 5 Kolom untuk Desktop */
     .qa-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 1.5rem;
+      gap: 1rem;
     }
-    
-    /* Desain Card Putih Timbul */
     .qa-btn {
       display: flex;
       flex-direction: column;
@@ -85,62 +84,61 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
       justify-content: center;
       text-align: center;
       background: var(--white);
-      padding: 2rem 1rem;
-      border-radius: 24px;
+      padding: 1.5rem 1rem;
+      border-radius: 8px;
       text-decoration: none;
       color: var(--brown-900);
       transition: all 0.3s ease;
-      border: 2px solid transparent;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid var(--cream-dark);
+      position: relative;
+      overflow: hidden;
     }
-    
+    .qa-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--brown-600);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
     .qa-btn:hover {
-      transform: translateY(-8px);
+      background: var(--cream);
       border-color: var(--brown-300);
-      box-shadow: 0 15px 35px rgba(123, 69, 32, 0.15);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      transform: translateY(-3px);
     }
-    
-    /* Ikon dengan Highlight Menarik */
+    .qa-btn:hover::after {
+      transform: scaleX(1);
+    }
     .qa-icon {
-      width: 70px;
-      height: 70px;
-      background: linear-gradient(135deg, var(--brown-100), var(--brown-300));
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      color: var(--brown-800);
-      margin-bottom: 1.25rem;
+      font-size: 2.2rem;
+      color: var(--brown-500);
+      margin-bottom: 1rem;
       transition: all 0.3s ease;
     }
-    
     .qa-btn:hover .qa-icon {
-      background: linear-gradient(135deg, var(--brown-600), var(--brown-800));
-      color: var(--white);
+      color: var(--brown-800);
       transform: scale(1.1);
     }
-    
     .qa-text {
-      font-size: 0.95rem;
-      font-weight: 700;
+      font-size: 0.9rem;
+      font-weight: 600;
       font-family: 'Poppins', sans-serif;
       line-height: 1.4;
     }
 
-    /* Responsif untuk Tablet */
+    /* Responsif */
     @media (max-width: 900px) {
       .qa-grid { grid-template-columns: repeat(3, 1fr); }
     }
-    
-    /* Responsif untuk HP */
     @media (max-width: 600px) {
-      .quick-access-section { padding: 2rem 1rem 1rem; }
-      .qa-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-      .qa-btn { padding: 1.5rem 0.5rem; border-radius: 20px; }
-      .qa-icon { width: 55px; height: 55px; font-size: 1.5rem; margin-bottom: 1rem; }
+      .quick-access-section { padding: 1rem 1rem 1rem; }
+      .qa-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .qa-btn { padding: 1.25rem 0.5rem; border-radius: 8px; }
+      .qa-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
       .qa-text { font-size: 0.85rem; }
-      .qa-btn:last-child { grid-column: span 2; } 
+      .qa-btn:last-child { grid-column: span 2; }
     }
   </style>
 
@@ -167,7 +165,7 @@ Literasi Terpadu Berbasis Ekosistem Hilirisasi Kakao Menuju Desa Cerdas</p>
           <span class="qa-text">Luaran &<br>Karya Fisik</span>
         </a>
 
-        <!-- Tombol 4: Diganti jadi Aset & Desain (Produk) -->
+        <!-- Tombol 4 -->
         <a href="modul.html" class="qa-btn">
           <div class="qa-icon"><i class="fas fa-cogs"></i></div>
           <span class="qa-text">Mesin TTG &<br>Produk Aset</span>
