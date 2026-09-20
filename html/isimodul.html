@@ -71,17 +71,33 @@
                         });
 
                         // TAMPILKAN KE LAYAR
-                        document.getElementById('modulContent').innerHTML = `
-                            <span style="background:var(--brown-800); color:white; padding:4px 12px; border-radius:50px; font-size:0.75rem; font-weight:bold; text-transform:uppercase; display:inline-block; margin-bottom:1rem;">
-                                ${modul.tracks.title}
-                            </span>
-                            <h1 style="font-family: 'Poppins', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--brown-900); line-height: 1.3; margin-bottom: 1rem;">${modul.title}</h1>
-                            <p style="font-size: 1.05rem; color: var(--text-light); margin-bottom: 2rem; border-bottom: 1px solid var(--cream-dark); padding-bottom: 1.5rem;">${modul.description || ''}</p>
+                        // 1. KODE AJAIB UNTUK [YOUTUBE] (Jika diketik manual)
+                        processedContent = processedContent.replace(/\[YOUTUBE\]([\s\S]*?)\[\/YOUTUBE\]/gi, (match, url) => {
+                            let cleanUrl = url.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/gi, '').trim();
+                            let videoId = "";
+                            if (cleanUrl.includes("v=")) videoId = cleanUrl.split("v=")[1].substring(0, 11);
+                            else if (cleanUrl.includes("youtu.be/")) videoId = cleanUrl.split("youtu.be/")[1].substring(0, 11);
+                            else if (cleanUrl.includes("embed/")) videoId = cleanUrl.split("embed/")[1].substring(0, 11);
                             
-                            <div style="margin-top: 2rem; font-size: 1.05rem; line-height: 1.8; color: var(--text-mid);">
-                                ${processedContent}
-                            </div>
-                        `;
+                            let embedUrl = videoId ? "https://www.youtube.com/embed/" + videoId : cleanUrl;
+                            return `<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 2rem 0;"><iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen></iframe></div>`;
+                        });
+
+                        // 2. KODE AJAIB UNTUK AUTO-EMBED ADMIN (Membaca <oembed>)
+                        processedContent = processedContent.replace(/<oembed[^>]*url="([^"]+)"[^>]*>.*?<\/oembed>/gi, (match, url) => {
+                            let cleanUrl = url.trim();
+                            let videoId = "";
+                            if (cleanUrl.includes("v=")) videoId = cleanUrl.split("v=")[1].substring(0, 11);
+                            else if (cleanUrl.includes("youtu.be/")) videoId = cleanUrl.split("youtu.be/")[1].substring(0, 11);
+                            else if (cleanUrl.includes("embed/")) videoId = cleanUrl.split("embed/")[1].substring(0, 11);
+                            
+                            let embedUrl = videoId ? "https://www.youtube.com/embed/" + videoId : cleanUrl;
+                            return `<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 2rem 0;"><iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen></iframe></div>`;
+                        });
+                        
+                        // 3. Bersihkan sisa bungkus bawaan editor agar tidak ada ruang kosong
+                        processedContent = processedContent.replace(/<figure[^>]*class="media"[^>]*>/gi, "");
+                        processedContent = processedContent.replace(/<\/figure>/gi, "");
                     }
                 } catch (e) {
                     document.getElementById('modulContent').innerHTML = "<p style='text-align:center; color:red;'>Gagal memuat materi.</p>";
